@@ -8,7 +8,7 @@ if (!function_exists('updateTatumAssetCredentials')) {
     function updateTatumAssetCredentials()
     {
         try {
-            $cryptoAssetSettings = \App\Models\CryptoAssetSetting::where('payment_method_id', TatumIo)->get();
+            $cryptoAssetSettings = \App\Models\CryptoAssetSetting::where('payment_method_id', getPaymentMethodId('TatumIo'))->get();
             if (!empty($cryptoAssetSettings)) {
                 $tatumIoNetworkArray = [];
                 foreach ($cryptoAssetSettings as  $cryptoAssetSetting) {
@@ -48,7 +48,7 @@ if (!function_exists('getReceiverAddressWalletUserId')) {
     {
         return  (new CryptoAssetApiLog())
         ->with(['wallet:id,user_id'])
-        ->where(['payment_method_id' => TatumIo, 'object_type' => 'wallet_address'])
+        ->where(['payment_method_id' => getPaymentMethodId('TatumIo'), 'object_type' => 'wallet_address'])
         ->whereJsonContains('payload->address', $receiverAddress )
         ->first('object_id');
 
@@ -115,7 +115,7 @@ if (!function_exists('tatumGetCryptoTransactionApiLog')) {
     {
         return (new CryptoAssetApiLog())
             ->with(['transaction:id'])
-            ->where(['payment_method_id' => TatumIo])
+            ->where(['payment_method_id' => getPaymentMethodId('TatumIo')])
             ->whereJsonContains('payload->txId', $txId)
             ->first();
     }
@@ -126,7 +126,7 @@ if (!function_exists('tatumGetWalletApiLog')) {
     {
         return (new CryptoAssetApiLog())
             ->with(['wallet:id,user_id,currency_id'])
-            ->where(['payment_method_id' => TatumIo, 'object_type' => 'wallet_address'])
+            ->where(['payment_method_id' => getPaymentMethodId('TatumIo'), 'object_type' => 'wallet_address'])
             ->whereJsonContains('payload->address', $address)
             ->first();
     }

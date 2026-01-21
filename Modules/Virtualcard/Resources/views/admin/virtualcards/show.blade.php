@@ -387,7 +387,7 @@
             let yearText = '{{ __("year") }}';
             let totalText = '{{ __("total") }}';
             let authorizationText = '{{ __("authorization") }}';
-            let spendingControlLimitUrl = '{{ route("admin.virtualcard_spendingcontrol.limit") }}';
+            let spendingControlLimitUrl = '{{ route("admin.virtualcard_spendingcontrol.limit.store") }}';
             let virtualcardId = '{{ $virtualcard->id }}';
             let currency = {!! $currency !!};
             let spendingControlExistCheckUrl = '{{ route("admin.virtualcard_spendingcontrol.limit_exist") }}';

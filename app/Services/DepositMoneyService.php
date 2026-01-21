@@ -61,7 +61,7 @@ class DepositMoneyService
 
         Currency::join("fees_limits", "fees_limits.currency_id", "currencies.id")
             ->where("fees_limits.has_transaction", "Yes")
-            ->where("fees_limits.transaction_type_id", Deposit)
+            ->where("fees_limits.transaction_type_id", getTransactionTypeId('Deposit'))
             ->where("currencies.status", "Active")
             ->get()
             ->map(function ($item) use (&$result) {
@@ -167,7 +167,7 @@ class DepositMoneyService
         $paymentMethodName = PaymentMethod::where('id', $paymentMethodId)->value('name');
         $paymentMethodAlias = strtolower(preg_replace("/\s+/", "", $paymentMethodName));
 
-        $feesDetails = $this->helper->transactionFees($currencyId, $amount, Deposit, $paymentMethodId);
+        $feesDetails = $this->helper->transactionFees($currencyId, $amount, getTransactionTypeId('Deposit'), $paymentMethodId);
         $this->helper->amountIsInLimit($feesDetails, $amount);
 
         $feesArray = [
@@ -194,7 +194,7 @@ class DepositMoneyService
      */
     public function getTotalAmount($amount, $currencyId, $paymentMethodId): float
     {
-        $feesDetails = $this->helper->transactionFees($currencyId, $amount, Deposit, $paymentMethodId);
+        $feesDetails = $this->helper->transactionFees($currencyId, $amount, getTransactionTypeId('Deposit'), $paymentMethodId);
         $this->helper->amountIsInLimit($feesDetails, $amount);
         return $feesDetails->total_amount;
     }
@@ -223,7 +223,7 @@ class DepositMoneyService
     ) {
         try {
             DB::beginTransaction();
-            if ($paymentMethodId == Bank) {
+            if ($paymentMethodId == getPaymentMethodId('Bank')) {
                 $deposit = Deposit::success(
                     $currencyId,
                     $paymentMethodId,
@@ -235,7 +235,7 @@ class DepositMoneyService
                     $response["bank"] ?? null
                 );
                 $response = miniCollection($response)->only(["action", "message"]);
-            } elseif ($paymentMethodId == Coinbase || $paymentMethodId == Payeer || $paymentMethodId == Coinpayments || $paymentMethodId == Flutterwave) {
+            } elseif ($paymentMethodId == getPaymentMethodId('Coinbase') || $paymentMethodId == getPaymentMethodId('Payeer') || $paymentMethodId == getPaymentMethodId('Coinpayments') || $paymentMethodId == getPaymentMethodId('Flutterwave')) {
 
                 $deposit = Deposit::success(
                     $currencyId,
@@ -301,7 +301,7 @@ class DepositMoneyService
      */
     public function getPaypalInfo($currencyId, $type)
     {
-        $currencyPaymentMethod = CurrencyPaymentMethod::where(['currency_id' => $currencyId, 'method_id' => Paypal])
+        $currencyPaymentMethod = CurrencyPaymentMethod::where(['currency_id' => $currencyId, 'method_id' => getPaymentMethodId('Paypal')])
             ->where('activated_for', 'like', "%" . $type . "%")
             ->first(['method_data']);
 
@@ -331,7 +331,7 @@ class DepositMoneyService
             'total' => $totalAmount,
             'amount' => $amount,
             'user_id' => auth()->id(),
-            'transaction_type' => Deposit,
+            'transaction_type' => getTransactionTypeId('Deposit'),
             'payment_type' => 'deposit',
             'payment_method' => $paymentMethodId,
             'redirectUrl' => route('deposit.complete'),
@@ -341,7 +341,7 @@ class DepositMoneyService
             'uuid' => unique_code()
         ];
 
-        if ($paymentMethodId == Bank) {
+        if ($paymentMethodId == getPaymentMethodId('Bank')) {
             $paymentData['banks'] = getBankList($currencyId, 'deposit');
         }
 

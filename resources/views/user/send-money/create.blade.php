@@ -109,7 +109,7 @@
         'use strict';
         let token = $('[name="_token"]').val();
         let processedBy = "{{ preference('processed_by') }}";
-        let transactionTypeId = "{{ Transferred }}";
+        let transactionTypeId = "{{ getTransactionTypeId('Transferred') }}";
         let placeHolder = "{{ __('Please enter valid :x') }}";
         let validEmailMessage = placeHolder.replace(':x', 'email (ex: user@gmail.com)'); 
         let validPhoneMessage = placeHolder.replace(':x', 'phone (ex: +12015550123)');

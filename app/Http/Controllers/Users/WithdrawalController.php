@@ -52,7 +52,7 @@ class WithdrawalController extends Controller
         })->whereHas('fees_limit', function ($query) {
             $query->where([
                 'has_transaction' => 'yes', 
-                'transaction_type_id' => Withdrawal
+                'transaction_type_id' => getTransactionTypeId('Withdrawal')
             ]);
         })->where([
             'status' => 'Active', 
@@ -264,7 +264,7 @@ class WithdrawalController extends Controller
             return back()->withErrors($validator)->withInput();
         } else {
             //backend validation starts
-            $request['transaction_type_id'] = Withdrawal;
+            $request['transaction_type_id'] = getTransactionTypeId('Withdrawal');
             $myResponse = $this->withdrawalAmountLimitCheck($request);
 
             if ($myResponse) {
@@ -285,7 +285,7 @@ class WithdrawalController extends Controller
                 $data['transInfo']['currency_id'] = $wallet->currency?->id;
                 $data['transInfo']['amount'] = $request->amount;
 
-                $feesInfo = FeesLimit::where(['transaction_type_id' => Withdrawal, 'currency_id' => $wallet->currency_id, 'payment_method_id' => $request->payment_method_id])->first(['charge_percentage', 'charge_fixed']);
+                $feesInfo = FeesLimit::where(['transaction_type_id' => getTransactionTypeId('Withdrawal'), 'currency_id' => $wallet->currency_id, 'payment_method_id' => $request->payment_method_id])->first(['charge_percentage', 'charge_fixed']);
 
                 $percentageCalc = $request->amount * ($feesInfo->charge_percentage / 100);
                 $fee = $percentageCalc + $feesInfo->charge_fixed;
@@ -448,7 +448,7 @@ class WithdrawalController extends Controller
         $payment_method_id   = $sessionValue['payment_method_id'];
         $payoutSetting       = $this->helper->getPayoutSettingObject(['paymentMethod:id'], ['id' => $withdrawal_method_id], ['*']);
         $wallet              = $this->helper->getUserWallet(['currency:id,symbol,code'], ['user_id' => $user_id, 'currency_id' => $currency_id], ['id', 'balance', 'currency_id']);
-        $feeInfo             = $this->helper->getFeesLimitObject([], Withdrawal, $wallet->currency_id, $payment_method_id, null, ['charge_percentage', 'charge_fixed']);
+        $feeInfo             = $this->helper->getFeesLimitObject([], getTransactionTypeId('Withdrawal'), $wallet->currency_id, $payment_method_id, null, ['charge_percentage', 'charge_fixed']);
         $feePercentage       = $amount * (@$feeInfo->charge_percentage / 100); //correct calc
         $arr                 = [
             'user_id'             => $user_id,

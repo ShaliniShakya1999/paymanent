@@ -82,7 +82,7 @@
     var amount = $('#amount').val();
     var currencyId = $('#currency_id').val();
     var paymentMethodId = $('#payment_method').val();
-    var transactionTypeId = "{{ Withdrawal }}";
+    var transactionTypeId = "{{ getTransactionTypeId('Withdrawal') }}";
     var isActiveMobileMoney = "{!! config('mobilemoney.is_active') !!}";
     var confirmationUrl = "{{ route('user.withdrawal.confirm') }}";
     var withdrawalActiveCurrency = "{{ route('user.withdrawal.active_currencies') }}";

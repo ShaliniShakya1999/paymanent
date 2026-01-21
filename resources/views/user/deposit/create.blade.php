@@ -90,7 +90,7 @@
         var token = $('[name="_token"]').val();
         var paymentMethodListUrl = "{{ route('user.deposit.payment_method') }}";
         var feesLimitUrl = "{{ route('user.deposit.fees_limit') }}";
-        var transactionTypeId = "{{ Deposit }}";
+        var transactionTypeId = "{{ getTransactionTypeId('Deposit') }}";
         var selectedPaymentMethod = "{{ session('paymentData')['payment_method'] ?? '' }}";
         var submitBtnText = "{{ __('Processing...') }}";
     </script>

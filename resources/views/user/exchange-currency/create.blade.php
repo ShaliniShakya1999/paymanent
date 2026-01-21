@@ -137,7 +137,7 @@
         var submitButtonText = "{{ __('Submiting...') }}";
         var swalTitleText = "{{ __('Please Wait...') }}";
         var swalBodyText = "{{ __('Loading...') }}";
-        var transactionTypeId = '{{ Exchange_From }}';
+        var transactionTypeId = '{{ getTransactionTypeId('Exchange_From') }}';
         var lowBalanceText = "{{ __('Not have enough balance !') }}";
         var failedText = '{{ __("Error") }}';
         let submitBtnText = '{{ __("Processing...") }}';

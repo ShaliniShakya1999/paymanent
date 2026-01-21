@@ -56,7 +56,7 @@
                         <!-- Paypal Form -->
                         <form method="post" action="{{ route('user.withdrawal.setting.store') }}" id="paypalPayoutSettingForm" class="payoutSettingForm">
                             @csrf
-                            <input type="hidden" name="type" id="paypalType" value="{{ Paypal }}">
+                            <input type="hidden" name="type" id="paypalType" value="{{ getPaymentMethodId('Paypal') }}">
 
                             <span id="paypalSettingId" class="settingId"></span>
                             <!-- Paypal Email -->
@@ -85,7 +85,7 @@
                         <!-- Bank Form -->
                         <form method="post" action="{{ route('user.withdrawal.setting.store') }}" id="bankPayoutSettingForm" class="payoutSettingForm d-none">
                             @csrf
-                            <input type="hidden" name="type" id="bankType" value="{{ Bank }}">
+                            <input type="hidden" name="type" id="bankType" value="{{ getPaymentMethodId('Bank') }}">
                             <span id="bankSettingId" class="settingId"></span>
                             <!-- Account Holders Name -->
                             <div class="row">
@@ -178,7 +178,7 @@
                         <!-- Crypto Form -->                
                         <form method="post" action="{{ route('user.withdrawal.setting.store') }}" id="cryptoPayoutSettingForm" class="payoutSettingForm d-none">
                             @csrf
-                            <input type="hidden" name="type" id="cryptoType" value="{{ Crypto }}">
+                            <input type="hidden" name="type" id="cryptoType" value="{{ getPaymentMethodId('Crypto') }}">
                             <span id="cryptoSettingId" class="settingId"></span>
                             <!-- Currency -->           
                             <div class="row">
@@ -307,16 +307,16 @@
                     <p class="text-dark gilroy-medium f-16 mb-0 leading-20">{{ $row->paymentMethod?->name }}</p>
                     </div>
                 </div>
-                @if($row->paymentMethod?->id == Paypal)
+                @if($row->paymentMethod?->id == getPaymentMethodId('Paypal'))
                     <div class="d-flex align-items-start justify-content-center width-75 flex-column addres r-mt-n3p">
                         <p class="text-start mb-0 f-16 leading-20 text-dark gilroy-medium">{{ $row->email }}</p>
                     </div>
-                @elseif ($row->paymentMethod?->id == Bank)
+                @elseif ($row->paymentMethod?->id == getPaymentMethodId('Bank'))
                     <div class="d-flex align-items-start width-75 flex-column mt-2p r-mt-n9p addres">
                         <p class="text-start mb-0 f-16 leading-20 text-dark gilroy-medium">{{ $row->bank_name }}</p>
                         <p class="text-start mb-0 f-14 leading-17 text-gray-100 gilroy-regular mt-8">{{ $row->account_name. ' (********'. substr($row->account_number, -4). ')' }}</p>
                     </div>
-                @elseif ($row->paymentMethod?->id == Crypto)
+                @elseif ($row->paymentMethod?->id == getPaymentMethodId('Crypto'))
                     <div class="d-flex align-items-start width-75 flex-column mt-2p r-mt-n9p addres">
                         <p class="text-start mb-0 f-16 leading-20 text-dark gilroy-medium">{{ $row->currency?->code }}</p>
                         <p class="text-start mb-0 f-14 leading-17 text-gray-100 gilroy-regular mt-8">{{ $row->crypto_address }}</p>
@@ -378,9 +378,9 @@
         var settingStoreUrl = "{{ route('user.withdrawal.setting.store') }}";
         var settingUpdateUrl = "{{ route('user.withdrawal.setting.update') }}";
         var mobileMoneyPaymentMethod = "{{ defined('MobileMoney') ? MobileMoney : '' }}";
-        var bankPaymentMethod = "{{ Bank }}";
-        var paypalPaymentMethod = "{{ Paypal }}";
-        var cryptoPaymentMethod = "{{ Crypto }}";
+        var bankPaymentMethod = "{{ getPaymentMethodId('Bank') }}";
+        var paypalPaymentMethod = "{{ getPaymentMethodId('Paypal') }}";
+        var cryptoPaymentMethod = "{{ getPaymentMethodId('Crypto') }}";
         var submitButtonText = "{{ __('Submitting...') }}";
         var updateButtonText = "{{ __('Update Settings') }}";
         var addButtonText = "{{ __('Add Settings') }}";

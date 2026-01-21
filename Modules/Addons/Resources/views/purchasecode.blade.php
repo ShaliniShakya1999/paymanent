@@ -30,7 +30,7 @@
     <hr>
 
     <div>
-        <form action="{{ route('addon.verify', $module[0]) }}" method="post" class="addons-form">
+        <form action="{{ route('addon.verify.submit', $module[0]) }}" method="post" class="addons-form">
             @csrf
             <div>
                 <!-- Purchase Code -->

@@ -137,7 +137,7 @@ Route::group(config('addons.route_group.authenticated.admin'), function() {
         ], function() {
 
             Route::get('limits', 'index')->name('limit');
-            Route::post('limits', 'upsert')->name('limit');
+            Route::post('limits', 'upsert')->name('limit.store');
             Route::post('limit-exist', 'limitExist')->name('limit_exist');
 
         });

@@ -14,7 +14,14 @@ class RevenueController extends Controller
     {
         $data['menu'] = 'revenues';
 
-        $revenueTransactionTypes = [Deposit, Withdrawal, Exchange_From, Transferred, Request_Received, Payment_Received]; 
+        $revenueTransactionTypes = [
+            getTransactionTypeId('Deposit'),
+            getTransactionTypeId('Withdrawal'),
+            getTransactionTypeId('Exchange_From'),
+            getTransactionTypeId('Transferred'),
+            getTransactionTypeId('Request_Received'),
+            getTransactionTypeId('Payment_Received')
+        ]; 
 
         foreach (getAllModules() as $module) {
             if (!empty(config($module->get('alias') . '.transaction_types'))) {

@@ -540,7 +540,7 @@ class Transaction extends Model
         $today                = date('Y-m-d');
         $previousDate         = date("Y-m-d", strtotime("-30 day", strtotime(date('d-m-Y'))));
         $data                 = $this->select(DB::raw('currency_id,SUM(total) as amount,created_at as trans_date,MONTH(created_at) as month,DAY(created_at) as day'))
-            ->whereBetween('created_at', [$previousDate, $today])->where(['transaction_type_id' => Deposit, 'status' => 'Success'])
+            ->whereBetween('created_at', [$previousDate, $today])->where(['transaction_type_id' => getTransactionTypeId('Deposit'), 'status' => 'Success'])
             ->groupBy('currency_id', 'day')->get();
         // $homeCurrency = Setting::where(['name' => 'default_currency', 'type' => 'general'])->select('value')->first();
         // $currencyRate = Currency::where(['id' => $homeCurrency->value])->select('rate')->first();
@@ -587,7 +587,7 @@ class Transaction extends Model
         $data_map             = [];
         $today                = date('Y-m-d');
         $previousDate         = date("Y-m-d", strtotime("-30 day", strtotime(date('d-m-Y'))));
-        $data                 = $this->select(DB::raw('currency_id,SUM(total) as amount,created_at as trans_date,MONTH(created_at) as month,DAY(created_at) as day'))->whereBetween('created_at', [$previousDate, $today])->where(['transaction_type_id' => Withdrawal, 'status' => 'Success'])->groupBy('currency_id', 'day')->get();
+        $data                 = $this->select(DB::raw('currency_id,SUM(total) as amount,created_at as trans_date,MONTH(created_at) as month,DAY(created_at) as day'))->whereBetween('created_at', [$previousDate, $today])->where(['transaction_type_id' => getTransactionTypeId('Withdrawal'), 'status' => 'Success'])->groupBy('currency_id', 'day')->get();
         $currencies           = getCurrencyIdOfTransaction($data);
         $currencyWithRate     = Currency::whereIn('id', $currencies)->get();
         if (!empty($data))
@@ -626,7 +626,7 @@ class Transaction extends Model
         $final                = [];
         $today                = date('Y-m-d');
         $previousDate         = date("Y-m-d", strtotime("-30 day", strtotime(date('d-m-Y'))));
-        $data                 = $this->select(DB::raw('currency_id,SUM(subtotal) as amount,created_at as trans_date,MONTH(created_at) as month,DAY(created_at) as day'))->whereBetween('created_at', [$previousDate, $today])->where(['transaction_type_id' => Transferred, 'status' => 'Success'])->groupBy('currency_id', 'day')->get();
+        $data                 = $this->select(DB::raw('currency_id,SUM(subtotal) as amount,created_at as trans_date,MONTH(created_at) as month,DAY(created_at) as day'))->whereBetween('created_at', [$previousDate, $today])->where(['transaction_type_id' => getTransactionTypeId('Transferred'), 'status' => 'Success'])->groupBy('currency_id', 'day')->get();
         $currencies           = getCurrencyIdOfTransaction($data);
         $currencyWithRate     = Currency::whereIn('id', $currencies)->get();
 
@@ -664,7 +664,7 @@ class Transaction extends Model
     public function totalRevenue($from, $to)
     {
         $data = $this->select(DB::raw('currency_id,SUM(charge_percentage + charge_fixed) as total_charge,MONTH(created_at) as month,DAY(created_at) as day'))
-            ->whereBetween('created_at', [$from, $to])->whereIn('transaction_type_id', [Deposit, Withdrawal, Transferred])->groupBy('currency_id', 'day')->get();
+            ->whereBetween('created_at', [$from, $to])->whereIn('transaction_type_id', [getTransactionTypeId('Deposit'), getTransactionTypeId('Withdrawal'), getTransactionTypeId('Transferred')])->groupBy('currency_id', 'day')->get();
 
         $currencies       = getCurrencyIdOfTransaction($data);
         $currencyWithRate = Currency::whereIn('id', $currencies)->get();
@@ -680,7 +680,7 @@ class Transaction extends Model
     {
         $data = $this->select(DB::raw('currency_id,SUM(charge_percentage + charge_fixed) as total_charge,
                                             MONTH(created_at) as month,
-                                            DAY(created_at) as day'))->whereBetween('created_at', [$from, $to])->where('transaction_type_id', Deposit)->groupBy('currency_id', 'day')->get();
+                                            DAY(created_at) as day'))->whereBetween('created_at', [$from, $to])->where('transaction_type_id', getTransactionTypeId('Deposit'))->groupBy('currency_id', 'day')->get();
 
         $currencies       = getCurrencyIdOfTransaction($data);
         $currencyWithRate = Currency::whereIn('id', $currencies)->get();
@@ -694,7 +694,7 @@ class Transaction extends Model
 
     public function totalWithdrawal($from, $to)
     {
-        $data = $this->select(DB::raw('currency_id,SUM(charge_percentage + charge_fixed) as total_charge,MONTH(created_at) as month,DAY(created_at) as day'))->whereBetween('created_at', [$from, $to])->where('transaction_type_id', Withdrawal)->groupBy('currency_id', 'day')->get();
+        $data = $this->select(DB::raw('currency_id,SUM(charge_percentage + charge_fixed) as total_charge,MONTH(created_at) as month,DAY(created_at) as day'))->whereBetween('created_at', [$from, $to])->where('transaction_type_id', getTransactionTypeId('Withdrawal'))->groupBy('currency_id', 'day')->get();
 
         $currencies       = getCurrencyIdOfTransaction($data);
         $currencyWithRate = Currency::whereIn('id', $currencies)->get();
@@ -708,7 +708,7 @@ class Transaction extends Model
 
     public function totalTransfer($from, $to)
     {
-        $data             = $this->select(DB::raw('currency_id,SUM(charge_percentage + charge_fixed) as total_charge,MONTH(created_at) as month,DAY(created_at) as day'))->whereBetween('created_at', [$from, $to])->whereIn('transaction_type_id', [Transferred, Request_Received])->groupBy('currency_id', 'day')->get();
+        $data             = $this->select(DB::raw('currency_id,SUM(charge_percentage + charge_fixed) as total_charge,MONTH(created_at) as month,DAY(created_at) as day'))->whereBetween('created_at', [$from, $to])->whereIn('transaction_type_id', [getTransactionTypeId('Transferred'), getTransactionTypeId('Request_Received')])->groupBy('currency_id', 'day')->get();
         $currencies       = getCurrencyIdOfTransaction($data);
         $currencyWithRate = Currency::whereIn('id', $currencies)->get();
         $final            = 0;
@@ -1041,7 +1041,7 @@ class Transaction extends Model
             return;
         }
 
-        if (in_array($transaction->transaction_type_id, [Deposit, Payment_Received])) {
+        if (in_array($transaction->transaction_type_id, [getTransactionTypeId('Deposit'), getTransactionTypeId('Payment_Received')])) {
 
             try {
                 DB::transaction(function () use ($transaction, $status) {
@@ -1051,7 +1051,7 @@ class Transaction extends Model
                     $transaction->save();
 
                     // Update specific transaction type status
-                    if ($transaction->transaction_type_id == Deposit) {
+                    if ($transaction->transaction_type_id == getTransactionTypeId('Deposit')) {
                         Deposit::where('uuid', $transaction->uuid)->update(['status' => $status]);
                     } else {
                         MerchantPayment::where('uuid', $transaction->uuid)->update(['status' => $status]);

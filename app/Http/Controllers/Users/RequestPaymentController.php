@@ -44,7 +44,7 @@ class RequestPaymentController extends Controller
         $data['content_title'] = 'Request Payment';
 
         $activeCurrency       = Currency::where(['status' => 'Active'])->get(['id', 'status', 'code', 'type']);
-        $feesLimitCurrency    = FeesLimit::where(['transaction_type_id' => Request_Received, 'has_transaction' => 'Yes'])->get(['currency_id', 'has_transaction']);
+        $feesLimitCurrency    = FeesLimit::where(['transaction_type_id' => getTransactionTypeId('Request_Received'), 'has_transaction' => 'Yes'])->get(['currency_id', 'has_transaction']);
         $data['currencyList'] = $this->currencyList($activeCurrency, $feesLimitCurrency);
 
         $data['defaultWallet'] = Wallet::with('currency:id,type')->where(['user_id' => auth()->user()->id, 'is_default' => 'Yes'])->first(['currency_id']);
@@ -295,7 +295,7 @@ class RequestPaymentController extends Controller
             $TransactionA->status = "Blocked";
             $TransactionA->save();
 
-            $transaction_type_id = $TransactionA->transaction_type_id == Request_Received ? Request_Sent : Request_Received;
+            $transaction_type_id = $TransactionA->transaction_type_id == getTransactionTypeId('Request_Received') ? getTransactionTypeId('Request_Sent') : getTransactionTypeId('Request_Received');
             $TransactionB        = Transaction::where([
                 'transaction_reference_id' => $TransactionA->transaction_reference_id,
                 'transaction_type_id'      => $transaction_type_id])->first(); //TODO: query optimization
@@ -324,24 +324,24 @@ class RequestPaymentController extends Controller
         try
         {
             DB::beginTransaction();
-            if ($request->type == Request_Sent)
+            if ($request->type == getTransactionTypeId('Request_Sent'))
             {
                 $TransactionA         = Transaction::find($id); //TODO: query optimization
                 $TransactionA->status = "Blocked";
                 $TransactionA->save();
 
-                $TransactionB         = Transaction::where(['transaction_reference_id' => $TransactionA->transaction_reference_id, 'transaction_type_id' => Request_Received])->first(); //TODO: query optimization
+                $TransactionB         = Transaction::where(['transaction_reference_id' => $TransactionA->transaction_reference_id, 'transaction_type_id' => getTransactionTypeId('Request_Received')])->first(); //TODO: query optimization
                 $TransactionB->status = "Blocked";
                 $TransactionB->save();
 
             }
-            elseif ($request->type == Request_Received)
+            elseif ($request->type == getTransactionTypeId('Request_Received'))
             {
                 $TransactionA         = Transaction::find($id); //TODO: query optimization
                 $TransactionA->status = "Blocked";
                 $TransactionA->save();
 
-                $TransactionB         = Transaction::where(['transaction_reference_id' => $TransactionA->transaction_reference_id, 'transaction_type_id' => Request_Sent])->first(); //TODO: query optimization
+                $TransactionB         = Transaction::where(['transaction_reference_id' => $TransactionA->transaction_reference_id, 'transaction_type_id' => getTransactionTypeId('Request_Sent')])->first(); //TODO: query optimization
                 $TransactionB->status = "Blocked";
                 $TransactionB->save();
             }
@@ -477,7 +477,7 @@ class RequestPaymentController extends Controller
         setActionSession();
 
         $data['requestPayment'] = $requestPayment = RequestPayment::with(['currency:id,symbol,code,type'])->where(['id' => $id])->first();
-        $data['transfer_fee']   = FeesLimit::where(['transaction_type_id' => Request_Received, 'currency_id' => $requestPayment->currency_id])->first(['currency_id', 'charge_percentage', 'charge_fixed']);
+        $data['transfer_fee']   = FeesLimit::where(['transaction_type_id' => getTransactionTypeId('Request_Received'), 'currency_id' => $requestPayment->currency_id])->first(['currency_id', 'charge_percentage', 'charge_fixed']);
         return view('user.request-money.accept', $data);
     }
 
@@ -500,7 +500,7 @@ class RequestPaymentController extends Controller
             // backend Validation - starts
             $request['amount']              = $request->amount;
             $request['currency_id']         = $request->currency_id;
-            $request['transaction_type_id'] = Request_Received;
+            $request['transaction_type_id'] = getTransactionTypeId('Request_Received');
             $amountLimitCheck               = $this->amountLimitCheck($request);
 
             if ($amountLimitCheck->getData()->success->status == 404 || $amountLimitCheck->getData()->success->status == 401) {
@@ -624,7 +624,7 @@ class RequestPaymentController extends Controller
         $processedBy         = preference('processed_by');
         $emailFilterValidate = $this->helper->validateEmailInput($sessionValue['emailOrPhone']);
         $phoneRegex          = $this->helper->validatePhoneInput($sessionValue['emailOrPhone']);
-        $feesLimit           = $this->helper->getFeesLimitObject([], Request_Received, $sessionValue['currency_id'], null, null, ['charge_percentage']);
+        $feesLimit           = $this->helper->getFeesLimitObject([], getTransactionTypeId('Request_Received'), $sessionValue['currency_id'], null, null, ['charge_percentage']);
 
         $arr = [
             'unauthorisedStatus'  => null,

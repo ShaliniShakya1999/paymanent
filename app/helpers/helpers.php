@@ -944,19 +944,19 @@ if (!function_exists('getStatusInputLabel')) {
         }
 
         $transactionTypes = [
-            Deposit => ['user' => 'User', 'receiver' => 'Receiver'],
-            Exchange_From => ['user' => 'User', 'receiver' => 'Receiver'],
-            Exchange_To => ['user' => 'User', 'receiver' => 'Receiver'],
-            Withdrawal => ['user' => 'User', 'receiver' => 'Receiver'],
-            Payment_Sent => ['user' => 'User', 'receiver' => 'Receiver'],
-            Payment_Received => ['user' => 'User', 'receiver' => 'Receiver'],
-            Transferred => ['user' => 'Paid By', 'receiver' => 'Paid To'],
-            Received => ['user' => 'Paid By', 'receiver' => 'Paid To'],
-            Request_Sent => ['user' => 'Request From', 'receiver' => 'Request To'],
-            Request_Received => ['user' => 'Request From', 'receiver' => 'Request To']
+            getTransactionTypeId('Deposit') => ['user' => 'User', 'receiver' => 'Receiver'],
+            getTransactionTypeId('Exchange_From') => ['user' => 'User', 'receiver' => 'Receiver'],
+            getTransactionTypeId('Exchange_To') => ['user' => 'User', 'receiver' => 'Receiver'],
+            getTransactionTypeId('Withdrawal') => ['user' => 'User', 'receiver' => 'Receiver'],
+            getTransactionTypeId('Payment_Sent') => ['user' => 'User', 'receiver' => 'Receiver'],
+            getTransactionTypeId('Payment_Received') => ['user' => 'User', 'receiver' => 'Receiver'],
+            getTransactionTypeId('Transferred') => ['user' => 'Paid By', 'receiver' => 'Paid To'],
+            getTransactionTypeId('Received') => ['user' => 'Paid By', 'receiver' => 'Paid To'],
+            getTransactionTypeId('Request_Sent') => ['user' => 'Request From', 'receiver' => 'Request To'],
+            getTransactionTypeId('Request_Received') => ['user' => 'Request From', 'receiver' => 'Request To']
         ];
 
-        return '<label class="control-label col-sm-3 fw-bold text-end" for="'. $userType .'">' . $transactionTypes[$type][$userType] . '</label>';
+        return '<label class="control-label col-sm-3 fw-bold text-end" for="'. $userType .'">' . ($transactionTypes[$type][$userType] ?? '') . '</label>';
     }
 }
 
@@ -977,12 +977,36 @@ if (! function_exists('getPaymoneySettings')) {
         $array = [
             'transaction_types' => [
                 'web' => [
-                    'sent' => [Deposit, Transferred, Exchange_From, Exchange_To, Request_Sent, Withdrawal, Payment_Sent],
-                    'received' => [Received, Request_Received, Payment_Received]
+                    'sent' => [
+                        getTransactionTypeId('Deposit'),
+                        getTransactionTypeId('Transferred'),
+                        getTransactionTypeId('Exchange_From'),
+                        getTransactionTypeId('Exchange_To'),
+                        getTransactionTypeId('Request_Sent'),
+                        getTransactionTypeId('Withdrawal'),
+                        getTransactionTypeId('Payment_Sent')
+                    ],
+                    'received' => [
+                        getTransactionTypeId('Received'),
+                        getTransactionTypeId('Request_Received'),
+                        getTransactionTypeId('Payment_Received')
+                    ]
                 ],
                 'mobile' => [
-                    'sent' => ['Deposit' => Deposit, 'Transferred' => Transferred, 'Exchange_From' => Exchange_From, 'Exchange_To' => Exchange_To, 'Request_Sent' => Request_Sent, 'Withdrawal' => Withdrawal, 'Payment_Sent' => Payment_Sent],
-                    'received' => ['Received' => Received, 'Request_Received' => Request_Received, 'Payment_Received' => Payment_Received]
+                    'sent' => [
+                        'Deposit' => getTransactionTypeId('Deposit'),
+                        'Transferred' => getTransactionTypeId('Transferred'),
+                        'Exchange_From' => getTransactionTypeId('Exchange_From'),
+                        'Exchange_To' => getTransactionTypeId('Exchange_To'),
+                        'Request_Sent' => getTransactionTypeId('Request_Sent'),
+                        'Withdrawal' => getTransactionTypeId('Withdrawal'),
+                        'Payment_Sent' => getTransactionTypeId('Payment_Sent')
+                    ],
+                    'received' => [
+                        'Received' => getTransactionTypeId('Received'),
+                        'Request_Received' => getTransactionTypeId('Request_Received'),
+                        'Payment_Received' => getTransactionTypeId('Payment_Received')
+                    ]
                 ],
                 'payment_sent' => [],
                 'payment_received' => []
@@ -990,29 +1014,105 @@ if (! function_exists('getPaymoneySettings')) {
             ],
             'payment_methods' => [
                 'web' => [
-                    'all' => [Mts, Stripe, Paypal, PayUmoney, Bank, Coinpayments, Payeer, Crypto, Coinbase],
-                    'deposit' => [Mts, Stripe, Paypal, PayUmoney, Bank, Coinpayments, Payeer, Coinbase],
-                    'withdrawal' => [Paypal, Bank, Crypto],
+                    'all' => [
+                        getPaymentMethodId('Mts'),
+                        getPaymentMethodId('Stripe'),
+                        getPaymentMethodId('Paypal'),
+                        getPaymentMethodId('PayUmoney'),
+                        getPaymentMethodId('Bank'),
+                        getPaymentMethodId('Coinpayments'),
+                        getPaymentMethodId('Payeer'),
+                        getPaymentMethodId('Crypto'),
+                        getPaymentMethodId('Coinbase')
+                    ],
+                    'deposit' => [
+                        getPaymentMethodId('Mts'),
+                        getPaymentMethodId('Stripe'),
+                        getPaymentMethodId('Paypal'),
+                        getPaymentMethodId('PayUmoney'),
+                        getPaymentMethodId('Bank'),
+                        getPaymentMethodId('Coinpayments'),
+                        getPaymentMethodId('Payeer'),
+                        getPaymentMethodId('Coinbase')
+                    ],
+                    'withdrawal' => [
+                        getPaymentMethodId('Paypal'),
+                        getPaymentMethodId('Bank'),
+                        getPaymentMethodId('Crypto')
+                    ],
                     'fiat' => [
-                        'deposit' => [Mts, Stripe, Paypal, PayUmoney, Bank, Coinpayments, Payeer, Coinbase, Flutterwave],
-                        'withdrawal' => [Mts, Paypal, Bank],
+                        'deposit' => [
+                            getPaymentMethodId('Mts'),
+                            getPaymentMethodId('Stripe'),
+                            getPaymentMethodId('Paypal'),
+                            getPaymentMethodId('PayUmoney'),
+                            getPaymentMethodId('Bank'),
+                            getPaymentMethodId('Coinpayments'),
+                            getPaymentMethodId('Payeer'),
+                            getPaymentMethodId('Coinbase'),
+                            getPaymentMethodId('Flutterwave')
+                        ],
+                        'withdrawal' => [
+                            getPaymentMethodId('Mts'),
+                            getPaymentMethodId('Paypal'),
+                            getPaymentMethodId('Bank')
+                        ],
                     ],
                     'crypto' => [
-                        'deposit' => [Mts, Coinpayments, Coinbase],
-                        'withdrawal' => [Mts, Crypto],
+                        'deposit' => [
+                            getPaymentMethodId('Mts'),
+                            getPaymentMethodId('Coinpayments'),
+                            getPaymentMethodId('Coinbase')
+                        ],
+                        'withdrawal' => [
+                            getPaymentMethodId('Mts'),
+                            getPaymentMethodId('Crypto')
+                        ],
                     ]
                 ],
                 'mobile' => [
-                    'all' => ['Stripe' => Stripe, 'Paypal' => Paypal, 'Bank' => Bank, 'Coinpayments' => Coinpayments, 'Crypto' => Crypto, 'Coinbase' => Coinbase],
-                    'deposit' => ['Stripe' => Stripe,'Paypal' => Paypal, 'Bank' => Bank, 'Coinpayments' => Coinpayments, 'Coinbase' => Coinbase],
-                    'withdrawal' => ['Paypal' => Paypal, 'Bank' => Bank, 'Crypto' => Crypto],
+                    'all' => [
+                        'Stripe' => getPaymentMethodId('Stripe'),
+                        'Paypal' => getPaymentMethodId('Paypal'),
+                        'Bank' => getPaymentMethodId('Bank'),
+                        'Coinpayments' => getPaymentMethodId('Coinpayments'),
+                        'Crypto' => getPaymentMethodId('Crypto'),
+                        'Coinbase' => getPaymentMethodId('Coinbase')
+                    ],
+                    'deposit' => [
+                        'Stripe' => getPaymentMethodId('Stripe'),
+                        'Paypal' => getPaymentMethodId('Paypal'),
+                        'Bank' => getPaymentMethodId('Bank'),
+                        'Coinpayments' => getPaymentMethodId('Coinpayments'),
+                        'Coinbase' => getPaymentMethodId('Coinbase')
+                    ],
+                    'withdrawal' => [
+                        'Paypal' => getPaymentMethodId('Paypal'),
+                        'Bank' => getPaymentMethodId('Bank'),
+                        'Crypto' => getPaymentMethodId('Crypto')
+                    ],
                     'fiat' => [
-                        'deposit' => ['Stripe' => Stripe, 'Paypal' => Paypal, 'Bank' => Bank, 'Coinbase' => Coinbase, 'Coinpayments' => Coinpayments, 'Flutterwave' => Flutterwave],
-                        'withdrawal' => ['Paypal' => Paypal, 'Bank' => Bank],
+                        'deposit' => [
+                            'Stripe' => getPaymentMethodId('Stripe'),
+                            'Paypal' => getPaymentMethodId('Paypal'),
+                            'Bank' => getPaymentMethodId('Bank'),
+                            'Coinbase' => getPaymentMethodId('Coinbase'),
+                            'Coinpayments' => getPaymentMethodId('Coinpayments'),
+                            'Flutterwave' => getPaymentMethodId('Flutterwave')
+                        ],
+                        'withdrawal' => [
+                            'Paypal' => getPaymentMethodId('Paypal'),
+                            'Bank' => getPaymentMethodId('Bank')
+                        ],
                     ],
                     'crypto' => [
-                        'deposit' => ['Coinpayments' => Coinpayments, 'Coinbase' => Coinbase],
-                        'withdrawal' => ['Crypto' => Crypto],
+                        'deposit' => [
+                            'Coinpayments' => getPaymentMethodId('Coinpayments'),
+                            'Coinbase' => getPaymentMethodId('Coinbase')
+                        ],
+                        'withdrawal' => [
+                            'Crypto' => getPaymentMethodId('Crypto')
+                        ],
                     ]
                 ]
             ]
@@ -1042,12 +1142,13 @@ if (! function_exists('getPaymoneySettings')) {
 
         // Mobile MOney - Payment method
         if (config('mobilemoney.is_active')) {
-            if (defined('MobileMoney')) {
-                $array['payment_methods']['web']['all'][] = MobileMoney;
-                $array['payment_methods']['web']['deposit'][] = MobileMoney;
-                $array['payment_methods']['web']['withdrawal'][] = MobileMoney;
-                $array['payment_methods']['web']['fiat']['deposit'][] = MobileMoney;
-                $array['payment_methods']['web']['fiat']['withdrawal'][] = MobileMoney;
+            $mobileMoneyId = getPaymentMethodId('MobileMoney');
+            if ($mobileMoneyId) {
+                $array['payment_methods']['web']['all'][] = $mobileMoneyId;
+                $array['payment_methods']['web']['deposit'][] = $mobileMoneyId;
+                $array['payment_methods']['web']['withdrawal'][] = $mobileMoneyId;
+                $array['payment_methods']['web']['fiat']['deposit'][] = $mobileMoneyId;
+                $array['payment_methods']['web']['fiat']['withdrawal'][] = $mobileMoneyId;
             }
         }
 
@@ -1692,16 +1793,16 @@ if (! function_exists('payment_option')) {
         ];
 
         switch ($method->type) {
-            case Paypal:
+            case getPaymentMethodId('Paypal'):
                 $text = $method->paymentMethod->name . ' (' . $method->email . ')';
                 break;
-            case Bank:
+            case getPaymentMethodId('Bank'):
                 $text = $method->paymentMethod->name . ' (' . $method->account_name . ')';
                 break;
-            case Crypto:
+            case getPaymentMethodId('Crypto'):
                 $text = $method->paymentMethod->name . ' (' . $method->currency->code . ' - ' . $method->crypto_address . ')';
                 break;
-            case MobileMoney:
+            case getPaymentMethodId('MobileMoney'):
                 if (config('mobilemoney.is_active')) {
                     $text = $method->paymentMethod->name . ' (' . ($method->mobilemoney->mobilemoney_name ?? '') . ' ****' . substr($method->mobile_number, -4) . ')';
                 } else {
@@ -2009,13 +2110,20 @@ if (!function_exists('isGatewayValidMethod')) {
 
     function isGatewayValidMethod($gateway) {
 
-        $allowedPaymentMethods = [Stripe, Paypal, Coinbase, Coinpayments, PayUmoney, Payeer];
+        $allowedPaymentMethods = [
+            getPaymentMethodId('Stripe'),
+            getPaymentMethodId('Paypal'),
+            getPaymentMethodId('Coinbase'),
+            getPaymentMethodId('Coinpayments'),
+            getPaymentMethodId('PayUmoney'),
+            getPaymentMethodId('Payeer')
+        ];
 
         if (in_array($gateway, $allowedPaymentMethods) && (!isset(request()->execute) || request()->execute !== 'api')) {
             throw new Exception(__('Payment Failed, please try again'));
         }
 
-        if ($gateway == Bank && (!isset(request()->bank) || !isset(request()->attachment)) ) {
+        if ($gateway == getPaymentMethodId('Bank') && (!isset(request()->bank) || !isset(request()->attachment)) ) {
             throw new Exception(__('Payment Details not available'));
         }
 
@@ -2058,14 +2166,14 @@ if (!function_exists('getCryptoPayloadConfirmationsDetails')) {
     {
         $arr = [];
         if (!empty($payload))  {
-            if ($transaction_type_id == Crypto_Sent || $transaction_type_id == Crypto_Received || $transaction_type_id == Token_Sent || $transaction_type_id == Token_Received) {
+            if ($transaction_type_id == getTransactionTypeId('Crypto_Sent') || $transaction_type_id == getTransactionTypeId('Crypto_Received') || $transaction_type_id == getTransactionTypeId('Token_Sent') || $transaction_type_id == getTransactionTypeId('Token_Received')) {
                 $payloadJson = json_decode($payload, true);
                 if (isset($payloadJson['senderAddress'])) {
                     $arr['senderAddress'] = $payloadJson['senderAddress'];
                 }
 
                 if (isset($payloadJson['receiverAddress'])) {
-                    $arr['receiverAddress'] = ($transaction_type_id == Crypto_Sent)
+                    $arr['receiverAddress'] = ($transaction_type_id == getTransactionTypeId('Crypto_Sent'))
                         ? $payloadJson['receiverAddress']
                         : (isset($payloadJson['address']) ? $payloadJson['address'] : $payloadJson['receiverAddress']);
                 }
@@ -2436,7 +2544,8 @@ if (!function_exists('getTransactionTypeId')) {
      * @return int The ID of the transaction type.
      */
     function getTransactionTypeId($name) {
-        return \App\Models\TransactionType::where('name', $name)->first()->id;
+        $transactionType = \App\Models\TransactionType::where('name', $name)->first();
+        return $transactionType ? $transactionType->id : null;
     }
 }
 
@@ -2449,7 +2558,8 @@ if (!function_exists('getPaymentMethodId')) {
      * @return int The ID of the transaction type.
      */
     function getPaymentMethodId($name) {
-        return \App\Models\PaymentMethod::where('name', $name)->first()->id;
+        $paymentMethod = \App\Models\PaymentMethod::where('name', $name)->first();
+        return $paymentMethod ? $paymentMethod->id : null;
     }
 }
 

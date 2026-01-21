@@ -38,7 +38,7 @@ class ExchangeController extends Controller
         $data['content_title'] = 'Exchange';
         $data['icon']          = 'money';
 
-        $feesLimitCurrency = FeesLimit::with('currency:id')->where(['transaction_type_id' => Exchange_From, 'has_transaction' => 'Yes'])->get(['currency_id', 'has_transaction']);
+        $feesLimitCurrency = FeesLimit::with('currency:id')->where(['transaction_type_id' => getTransactionTypeId('Exchange_From'), 'has_transaction' => 'Yes'])->get(['currency_id', 'has_transaction']);
         
         // Users Active, Has Transaction and Existing Currency Wallets/list
         $userCurrencyList = array_column(Wallet::with('currency')->where(['user_id' => auth()->user()->id])->get(['currency_id'])->toArray(), 'currency_id');
@@ -128,7 +128,7 @@ class ExchangeController extends Controller
 
     public function getActiveHasTransactionExceptUsersExistingWalletsCurrencies(Request $request)
     {
-        $feesLimitCurrency = FeesLimit::where(['transaction_type_id' => Exchange_From, 'has_transaction' => 'Yes'])->get(['currency_id', 'has_transaction']);
+        $feesLimitCurrency = FeesLimit::where(['transaction_type_id' => getTransactionTypeId('Exchange_From'), 'has_transaction' => 'Yes'])->get(['currency_id', 'has_transaction']);
         $activeCurrency = Currency::where('id', '!=', $request->currency_id)->where(['type' => 'fiat', 'status' => 'Active'])->get(['id', 'code', 'status', 'rate', 'exchange_from']);
         $currencyList = $this->currencyList($activeCurrency, $feesLimitCurrency);
 
@@ -231,7 +231,7 @@ class ExchangeController extends Controller
 
             //temporary swapping
             $request['currency_id']         = $from_currency_id;
-            $request['transaction_type_id'] = Exchange_From;
+            $request['transaction_type_id'] = getTransactionTypeId('Exchange_From');
             $amountLimitCheck               = $this->amountLimitCheck($request);
             $request['currency_id']         = $to_currency_id;
             if ($amountLimitCheck->getData()->success->status == 200) {
@@ -285,7 +285,7 @@ class ExchangeController extends Controller
         $uuid                      = unique_code();
         $fromWallet                = $this->helper->getUserWallet(['currency:id,code,symbol'], ['user_id' => $user_id, 'currency_id' => $fromWalletCurrencyId], ['id', 'currency_id', 'balance']);
         $toWallet                  = $this->helper->getUserWallet(['currency:id,code,symbol'], ['user_id' => $user_id, 'currency_id' => $toWalletCurrencyId], ['id', 'currency_id', 'balance']);
-        $feesDetails               = $this->helper->getFeesLimitObject([], Exchange_From, $fromWalletCurrencyId, null, null, ['charge_percentage', 'charge_fixed']);
+        $feesDetails               = $this->helper->getFeesLimitObject([], getTransactionTypeId('Exchange_From'), $fromWalletCurrencyId, null, null, ['charge_percentage', 'charge_fixed']);
         $arr                       = [
             'unauthorisedStatus'        => null,
             'user_id'                   => $user_id,

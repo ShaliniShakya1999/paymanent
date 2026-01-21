@@ -127,7 +127,7 @@ class MoneyTransferController extends Controller
             {
                 $q->whereHas('fees_limit', function ($query)
                 {
-                    $query->where('transaction_type_id', Transferred)->where('has_transaction', 'Yes')->select('currency_id', 'has_transaction');
+                    $query->where('transaction_type_id', getTransactionTypeId('Transferred'))->where('has_transaction', 'Yes')->select('currency_id', 'has_transaction');
                 });
             })
             ->with(['active_currency:id,code,type', 'active_currency.fees_limit:id,currency_id'])
@@ -211,7 +211,7 @@ class MoneyTransferController extends Controller
 
         //Amount Limit Check validation
         $request['wallet_id']           = $request->wallet;
-        $request['transaction_type_id'] = Transferred;
+        $request['transaction_type_id'] = getTransactionTypeId('Transferred');
         $amountLimitCheck               = $this->amountLimitCheck($request);
         if ($amountLimitCheck->getData()->success->status == 200) {
             if ($amountLimitCheck->getData()->success->totalAmount > $amountLimitCheck->getData()->success->balance) {
@@ -340,7 +340,7 @@ class MoneyTransferController extends Controller
         $total_with_fee          = $sessionValue['amount'] + $sessionValue['fee'];
         $currency_id             = session('transInfo')['currency_id'];
         $user_id                 = auth()->user()->id;
-        $feesDetails             = $this->helper->getFeesLimitObject([], Transferred, $sessionValue['currency_id'], null, null, ['charge_percentage', 'charge_fixed']);
+        $feesDetails             = $this->helper->getFeesLimitObject([], getTransactionTypeId('Transferred'), $sessionValue['currency_id'], null, null, ['charge_percentage', 'charge_fixed']);
         $senderWallet            = $this->helper->getUserWallet([], ['user_id' => $user_id, 'currency_id' => $currency_id], ['id', 'balance']);
         $p_calc                  = $sessionValue['amount'] * (@$feesDetails->charge_percentage / 100);
         $processedBy             = $sessionValue['sendMoneyProcessedBy'];

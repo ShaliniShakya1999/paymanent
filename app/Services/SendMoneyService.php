@@ -49,7 +49,7 @@ class SendMoneyService
     public function __construct(Common $helper)
     {
         $this->helper = $helper;
-        $this->transactionType = Transferred;
+        $this->transactionType = getTransactionTypeId('Transferred');
         $this->transfer = new Transfer;
     }
 
