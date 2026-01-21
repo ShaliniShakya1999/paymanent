@@ -285,11 +285,23 @@ class ManualVerificationProcessor extends VerificationContract
     */
     private function verificationViewData($type)
     {
+        // Get or create the manual provider if it doesn't exist
+        $provider = KycProvider::where('alias', 'manual')->first();
+        
+        if (!$provider) {
+            // Create the manual provider if it doesn't exist
+            $provider = KycProvider::create([
+                'name' => 'Manual',
+                'alias' => 'manual',
+                'is_default' => 'Yes',
+            ]);
+        }
+
         return [
             'menu' => 'profile',
             'sub_menu' => 'verification',
             'two_step_verification' => preference('two_step_verification'),
-            'provider' => KycProvider::where('alias', 'manual')->first(),
+            'provider' => $provider,
             'verification' => DocumentVerification::where(['user_id' => auth()->id(), 'verification_type' => $type])->first()
         ];
     }

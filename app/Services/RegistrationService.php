@@ -40,9 +40,29 @@ class RegistrationService
                 throw new Exception(__('The phone number provided is incorrect'));
             }
 
+            // Check for duplicate phone using the same cleaning logic as createNewUser
+            if (!empty($request->phone)) {
+                $cleanedPhone = preg_replace("/[\s-]+/", "", $formattedPhone);
+                
+                if (User::where('phone', $cleanedPhone)->exists()) {
+                    throw new Exception(__('The phone number has already been taken!'));
+                }
+            }
+
             DB::beginTransaction();
             $this->user = new User();
-            $user = $this->user->createNewUser($request, 'user');
+            
+            try {
+                $user = $this->user->createNewUser($request, 'user');
+            } catch (\Illuminate\Database\QueryException $e) {
+                DB::rollBack();
+                // Handle duplicate phone number error
+                if ($e->getCode() == 23000 && strpos($e->getMessage(), 'users_phone_unique') !== false) {
+                    throw new Exception(__('The phone number has already been taken!'));
+                }
+                // Re-throw if it's a different error
+                throw $e;
+            }
             RoleUser::insert(['user_id' => $user->id, 'role_id' => $user->role_id, 'user_type' => 'User']);
             $this->user->createUserDetail($user->id);
             $this->user->createUserDefaultWallet($user->id, settings('default_currency'));

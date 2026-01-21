@@ -125,10 +125,34 @@ class RegistrationController extends Controller
             return response()->json(['success' => $response], $this->successStatus);
         } else {
             try {
+                // Check for duplicate phone using the same cleaning logic as createNewUser
+                if (!empty($request->phone)) {
+                    $formattedPhone = str_replace('+' . $request->carrierCode, "", $request->formattedPhone);
+                    $cleanedPhone = preg_replace("/[\s-]+/", "", $formattedPhone);
+                    
+                    if (User::where('phone', $cleanedPhone)->exists()) {
+                        $response['message'] = "The phone number has already been taken!";
+                        $response['status']  = $this->unauthorisedStatus;
+                        return response()->json(['success' => $response], $this->successStatus);
+                    }
+                }
+                
                 DB::beginTransaction();
 
                 //Create user
-                $user = $this->user->createNewUser($request, 'user');
+                try {
+                    $user = $this->user->createNewUser($request, 'user');
+                } catch (\Illuminate\Database\QueryException $e) {
+                    DB::rollBack();
+                    // Handle duplicate phone number error
+                    if ($e->getCode() == 23000 && strpos($e->getMessage(), 'users_phone_unique') !== false) {
+                        $response['message'] = "The phone number has already been taken!";
+                        $response['status']  = $this->unauthorisedStatus;
+                        return response()->json(['success' => $response], $this->successStatus);
+                    }
+                    // Re-throw if it's a different error
+                    throw $e;
+                }
 
                 //Assign user type and role to new user
                 RoleUser::insert(['user_id' => $user->id, 'role_id' => $user->role_id, 'user_type' => 'User']);

@@ -21,7 +21,17 @@ class SmsTemplateController extends Controller
                     return $data['smsTemplates'][$templates->group][$templates->name][$templates->lang] = $templates;
                 });
 
-        $data['templateAlias'] = $alias ?? $data['smsTemplates']['General']['Address or Identity Verification']['en']['alias'];
+        // Safely get default template alias if not provided
+        $defaultAlias = null;
+        if (isset($data['smsTemplates']['General']['Address or Identity Verification']['en']['alias'])) {
+            $defaultAlias = $data['smsTemplates']['General']['Address or Identity Verification']['en']['alias'];
+        } else {
+            // Fallback: get first available template alias
+            $firstTemplate = EmailTemplate::where(['type' => 'sms', 'status' => 'Active'])->first();
+            $defaultAlias = $firstTemplate ? $firstTemplate->alias : null;
+        }
+        
+        $data['templateAlias'] = $alias ?? $defaultAlias;
         $data['templateData'] = EmailTemplate::where(['type' => 'sms', 'status' => 'Active', 'alias' => $data['templateAlias']])->get(['id', 'subject', 'body']);
 
         return view('admin.sms_templates.index', $data);

@@ -21,12 +21,20 @@ class VerificationHandler
     {
         // Retrieve the current KYC provider setting
         $provider = settings('kyc_provider');
+        
+        // Ensure provider is a string (handle case where settings returns array)
+        if (is_array($provider)) {
+            $provider = $provider['kyc_provider'] ?? 'manual';
+        }
+        
+        // Convert to string if not already, with fallback to 'manual'
+        $provider = !empty($provider) ? (string) $provider : 'manual';
 
         // Find the concrete provider class using the verification provider manager
         $providerConcrete = VerificationProviderManager::find($provider);
 
         // Check if the provider class exists and bind it to the contract
-        if (class_exists($providerConcrete)) {
+        if (!empty($providerConcrete) && is_string($providerConcrete) && class_exists($providerConcrete)) {
             app()->bind(VerificationContract::class, $providerConcrete);
         } else {
             // Throw an exception if the provider class is not found

@@ -9,6 +9,7 @@ Route::get('/clear', function () {
     return redirect('/');
 });
 
+
 // Route::get('/', 'HomeController@index')->name('home');
 Route::get('/', function () {
     return redirect()->route('login');
@@ -229,6 +230,20 @@ Route::group(['middleware' => ['guest:users', 'locale', 'twoFa', 'check-user-ina
         Route::post('ticket/change_reply_status', 'TicketController@changeReplyStatus')->name('user.tickets.change_status');
         Route::get('ticket/download/{file}', 'TicketController@download')->name('user.tickets.download');
     });
+});
+
+// KYC Verifications routes - explicitly register to avoid route conflicts
+Route::group(['middleware' => ['web', 'guest:users', 'locale', 'twoFa', 'check-user-inactive']], function () {
+    Route::get('user/kyc/verifications', 'Modules\KycVerification\Http\Controllers\User\VerificationController@initiate')
+        ->name('user.kyc.verifications.initiate');
+    Route::post('user/kyc/verifications/process', 'Modules\KycVerification\Http\Controllers\User\VerificationController@processVerification')
+        ->name('user.kyc.verifications.process');
+    Route::get('user/kyc/address-verifications', 'Modules\KycVerification\Http\Controllers\User\VerificationController@addressVerify')
+        ->name('user.kyc.verifications.address');
+    Route::post('user/kyc/process-address-verifications', 'Modules\KycVerification\Http\Controllers\User\VerificationController@processAddressVerification')
+        ->name('user.kyc.verifications.process.address');
+    Route::get('user/kyc/proof-download/{type}/{fileName}', 'Modules\KycVerification\Http\Controllers\User\VerificationController@download')
+        ->name('user.kyc.verifications.proof.download');
 });
 
 /* Merchant Payment Start*/
