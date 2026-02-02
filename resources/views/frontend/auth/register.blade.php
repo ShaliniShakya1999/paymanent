@@ -9,31 +9,16 @@
 <!-- Sign-up section start -->
 <div class="container-fluid container-layout px-0" id="personal-info-store">
     <div class="main-auth-div">
-        <div class="row">
-            <div class="col-md-6 col-xl-5 hide-small-device">
-                <div class="bg-pattern">
-                    <div class="bg-content">
-                        <div class="d-flex justify-content-start"> 
-                            <div class="logo-div">
-                                <a href="{{ url('/') }}">
-                                    <img src="{{ image(settings('logo'), 'logo') }}" alt="{{ __('Brand Logo') }}">
-                                </a>
-                            </div>
-                        </div> 
-                        <div class="transaction-block">
-                            <div class="transaction-text">
-                                <h3 class="mb-6p">{{ __('Hassle free money') }}</h3>
-                                <h1 class="mb-2p">{{ __('Transactions') }}</h1>
-                                <h2>{{ __('Right at you fingertips') }}</h2>
-                            </div>
-                        </div>
-                        <div class="transaction-image">
-                            <div class="static-image">
-                                <img class="img img-fluid" src="{{ asset('public/frontend/templates/images/login/signup-static-img.svg') }}">
-                            </div>
-                        </div>
+        <div class="row min-vh-100 g-0">
+            <div class="col-md-6 col-xl-5 hide-small-device position-relative overflow-hidden" style="min-height: 100vh;">
+                <img class="img img-fluid w-100 h-100 position-absolute top-0 start-0" src="{{ asset('public/frontend/templates/images/login/loginimage.png') }}" style="object-fit: cover; object-position: center;" alt="Sign Up">
+                <div class="position-absolute top-0 start-50 translate-middle-x p-3 p-md-4" style="z-index: 2;">
+                    <div class="logo-div">
+                        <a href="{{ url('/') }}">
+                            <img src="{{ image(settings('logo'), 'logo') }}" alt="{{ __('Brand Logo') }}">
+                        </a>
                     </div>
-                </div>                  
+                </div>
             </div>
             <div class="col-md-6 col-12 col-xl-7">
                 @include('frontend.layouts.common.alert')
