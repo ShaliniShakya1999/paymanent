@@ -9,11 +9,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('api_request_logs', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('module', 32);
             $table->string('endpoint', 255)->nullable();
             $table->string('method', 10)->default('POST');
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
             $table->string('reference_id', 64)->nullable();
             $table->unsignedSmallInteger('response_status')->nullable();
             $table->json('request_headers_masked')->nullable();
