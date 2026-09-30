@@ -53,6 +53,14 @@ Route::group(['middleware' => ['guest:users', 'locale', 'check-user-inactive', '
 Route::group(['middleware' => ['guest:users', 'locale', 'twoFa', 'check-user-inactive', 'verification'], 'namespace' => 'Users'], function () {
     Route::get('dashboard', 'CustomerController@dashboard')->name('user.dashboard')->withoutMiddleware('verification');
     Route::get('wallet-list', 'CustomerController@getWallets')->name('user.wallets.index');
+    Route::get('recharge', 'RechargeController@index')->name('user.recharge.index');
+    Route::post('recharge/get-operators', 'RechargeController@getOperators')->name('user.recharge.get-operators');
+    Route::post('recharge/do', 'RechargeController@doRecharge')->name('user.recharge.do');
+    Route::get('bbps', 'BillPaymentController@index')->name('user.bbps.dashboard');
+    Route::post('bill-payment/get-operators', 'BillPaymentController@getOperators')->name('user.bill-payment.get-operators');
+    Route::post('bill-payment/fetch-bill', 'BillPaymentController@fetchBill')->name('user.bill-payment.fetch-bill');
+    Route::post('bill-payment/pay', 'BillPaymentController@payBill')->name('user.bill-payment.pay');
+    Route::post('bill-payment/status', 'BillPaymentController@getStatus')->name('user.bill-payment.status');
 
     Route::get('/logout', 'CustomerController@logout')->name('user.logout')->withoutMiddleware(['verification', 'twoFa']);
     Route::get('check-user-status', 'CustomerController@checkUserStatus');
