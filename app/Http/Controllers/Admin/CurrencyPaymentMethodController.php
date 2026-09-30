@@ -313,6 +313,11 @@ class CurrencyPaymentMethodController extends Controller
         }
     }
 
+    public function showbankDetails(Request $request)
+    {
+        return $this->getCpmId($request);
+    }
+
     public function getCpmId(Request $request)
     {
         $bank = Bank::where(['id' => $request->bank_id])->first();

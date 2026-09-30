@@ -5,9 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="{{ isset($exceptionMeta) ? $exceptionMeta->description : meta(Route::current()->uri(), 'description') }}">
-    <meta name="keywords" content="{{ isset($exceptionMeta) ? $exceptionMeta->keywords : meta(Route::current()->uri(), 'keywords') }}">
-    <title>{{ isset($exceptionMeta) ? $exceptionMeta->title : meta(Route::current()->uri(), 'title') }}<?= isset($additionalTitle) ? ' | '.$additionalTitle : '' ?></title>
+    <meta name="description" content="{{ isset($exceptionMeta) ? $exceptionMeta->description : meta(Route::current()?->uri() ?? request()->path(), 'description') }}">
+    <meta name="keywords" content="{{ isset($exceptionMeta) ? $exceptionMeta->keywords : meta(Route::current()?->uri() ?? request()->path(), 'keywords') }}">
+    <title>{{ isset($exceptionMeta) ? $exceptionMeta->title : meta(Route::current()?->uri() ?? request()->path(), 'title') }}<?= isset($additionalTitle) ? ' | '.$additionalTitle : '' ?></title>
     @include('frontend.layouts.common.style')
 
     <script type="text/javascript">

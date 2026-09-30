@@ -167,6 +167,11 @@ class UserController extends Controller
         }
     }
 
+    public function show($id)
+    {
+        return $this->edit($id);
+    }
+
     public function edit($id)
     {
         $data['menu'] = 'users';

@@ -70,17 +70,18 @@ class RegistrationController extends Controller
     public function duplicatePhoneNumberCheckApi(Request $request)
     {
         $req_id = $request->id;
-        if (isset($req_id))
-        {
-            $phone = User::where(['phone' => preg_replace("/[\s-]+/", "", $request->phone)])->where(function ($query) use ($req_id)
-            {
-                $query->where('id', '!=', $req_id);
-            })->exists();
+        $cleaned = preg_replace("/[\s-]+/", "", $request->phone);
+        $query = User::where(function ($q) use ($cleaned) {
+            $q->where('phone', $cleaned)
+              ->orWhere('formattedPhone', $cleaned)
+              ->orWhere('formattedPhone', '+' . ltrim($cleaned, '+'));
+        });
+
+        if (isset($req_id)) {
+            $query->where('id', '!=', $req_id);
         }
-        else
-        {
-            $phone = User::where(['phone' => preg_replace("/[\s-]+/", "", $request->phone)])->exists();
-        }
+
+        $phone = $query->exists();
 
         if ($phone) {
             $data['status'] = true;
@@ -127,7 +128,9 @@ class RegistrationController extends Controller
             try {
                 // Check for duplicate phone using the same cleaning logic as createNewUser
                 if (!empty($request->phone)) {
-                    $formattedPhone = str_replace('+' . $request->carrierCode, "", $request->formattedPhone);
+                    $formattedPhone = !empty($request->formattedPhone)
+                        ? str_replace('+' . $request->carrierCode, "", $request->formattedPhone)
+                        : $request->phone;
                     $cleanedPhone = preg_replace("/[\s-]+/", "", $formattedPhone);
                     
                     if (User::where('phone', $cleanedPhone)->exists()) {

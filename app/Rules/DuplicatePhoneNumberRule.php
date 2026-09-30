@@ -16,7 +16,11 @@ class DuplicatePhoneNumberRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        $phone = User::where(['phone' => preg_replace("/[\s-]+/", "", $value)])->exists();
+        $cleaned = preg_replace("/[\s-]+/", "", $value);
+        $phone = User::where('phone', $cleaned)
+            ->orWhere('formattedPhone', $cleaned)
+            ->orWhere('formattedPhone', '+' . ltrim($cleaned, '+'))
+            ->exists();
         return $phone ? false : true;
     }
 

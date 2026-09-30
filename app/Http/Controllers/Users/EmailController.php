@@ -103,13 +103,21 @@ class EmailController extends Controller
         $emailConfig = EmailConfig::where(['email_protocol' => 'smtp', 'status' => '1'])->first();
 
         Config::set([
-            'mail.driver'     => isset($emailConfig->email_protocol) ? $emailConfig->email_protocol : '',
-            'mail.host'       => isset($emailConfig->smtp_host) ? $emailConfig->smtp_host : '',
-            'mail.port'       => isset($emailConfig->smtp_port) ? $emailConfig->smtp_port : '',
-            'mail.from'       => ['address' => isset($emailConfig->from_address) ? $emailConfig->from_address : '', 'name' => isset($emailConfig->from_name) ? $emailConfig->from_name : ''],
-            'mail.encryption' => isset($emailConfig->email_encryption) ? $emailConfig->email_encryption : '',
-            'mail.username'   => isset($emailConfig->smtp_username) ? $emailConfig->smtp_username : '',
-            'mail.password'   => isset($emailConfig->smtp_password) ? $emailConfig->smtp_password : '',
+            'mail.driver'                  => $emailConfig->email_protocol ?? '',
+            'mail.default'                 => $emailConfig->email_protocol ?? 'smtp',
+            'mail.host'                    => $emailConfig->smtp_host ?? '',
+            'mail.port'                    => $emailConfig->smtp_port ?? '',
+            'mail.from'                    => ['address' => $emailConfig->from_address ?? '', 'name' => $emailConfig->from_name ?? ''],
+            'mail.encryption'              => $emailConfig->email_encryption ?? '',
+            'mail.username'                => $emailConfig->smtp_username ?? '',
+            'mail.password'                => $emailConfig->smtp_password ?? '',
+            'mail.mailers.smtp.transport'  => 'smtp',
+            'mail.mailers.smtp.host'       => $emailConfig->smtp_host ?? '',
+            'mail.mailers.smtp.port'       => $emailConfig->smtp_port ?? '',
+            'mail.mailers.smtp.encryption' => $emailConfig->email_encryption ?? '',
+            'mail.mailers.smtp.username'   => $emailConfig->smtp_username ?? '',
+            'mail.mailers.smtp.password'   => $emailConfig->smtp_password ?? '',
+            'mail.mailers.smtp.timeout'    => 5,
         ]);
     }
 }

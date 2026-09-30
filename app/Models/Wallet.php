@@ -59,21 +59,35 @@ class Wallet extends Model
 
 
 
-        $wallets = $this->with(['currency:id,type,code,type,symbol', 'cryptoAssetApiLogs' => function($query){
+        $wallets = $this->with(['currency:id,name,type,code,symbol,rate,address', 'cryptoAssetApiLogs' => function($query){
             $query->where('object_type', 'wallet_address');
         }])->where(['user_id' => $user_id])
             ->orderBy('balance', 'ASC')
             ->get(['id','currency_id', 'is_default', 'balance'])
             ->map(function ($wallet)
             {
+                $rawAddress = optional($wallet->currency)->address ?: optional($wallet->cryptoAssetApiLogs)->payload;
+                $cleanAddress = null;
+                if (!empty($rawAddress)) {
+                    if (is_string($rawAddress) && str_starts_with(trim($rawAddress), '{')) {
+                        $decoded = json_decode($rawAddress, true);
+                        $cleanAddress = $decoded['address'] ?? null;
+                    } else {
+                        $cleanAddress = $rawAddress;
+                    }
+                }
+
                 $walletInfo = [
                     'id' => $wallet->id,
                     'balance' => formatNumber($wallet->balance, $wallet->currency_id),
                     'is_default' => $wallet->is_default,
                     'curr_id' => $wallet->currency_id,
+                    'curr_name' => optional($wallet->currency)->name,
                     'curr_type' => optional($wallet->currency)->type,
                     'curr_code' => optional($wallet->currency)->code,
                     'curr_symbol' => optional($wallet->currency)->symbol,
+                    'curr_rate' => optional($wallet->currency)->rate,
+                    'address' => $cleanAddress,
                     'provider' => (optional($wallet->cryptoAssetApiLogs)->payment_method_id == TatumIo) ? 'tatumio' : '',
                 ];
                 return $walletInfo;

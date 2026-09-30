@@ -204,13 +204,18 @@ class User extends Authenticatable
         $user->first_name = $request->first_name;
         $user->last_name  = $request->last_name;
         $user->email      = $request->email;
-        $formattedPhone   = str_replace('+' . $request->carrierCode, "", $request->formattedPhone);
-
         if (!empty($request->phone)) {
-            $user->phone          = preg_replace("/[\s-]+/", "", $formattedPhone);
+            $formattedPhone = !empty($request->formattedPhone)
+                ? $request->formattedPhone
+                : $request->phone;
+            $cleanedPhone = preg_replace("/[\s-]+/", "", $formattedPhone);
+            if (!empty($request->carrierCode)) {
+                $cleanedPhone = preg_replace('/^\+?' . preg_quote($request->carrierCode, '/') . '/', '', $cleanedPhone);
+            }
+            $user->phone          = !empty($cleanedPhone) ? $cleanedPhone : null;
             $user->defaultCountry = $request->defaultCountry;
             $user->carrierCode    = $request->carrierCode;
-            $user->formattedPhone = $request->formattedPhone;
+            $user->formattedPhone = $request->formattedPhone ?? (!empty($request->carrierCode) && !empty($cleanedPhone) ? '+' . $request->carrierCode . $cleanedPhone : $request->phone);
         } else {
             $user->phone          = null;
             $user->defaultCountry = null;

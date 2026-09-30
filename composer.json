@@ -88,6 +88,11 @@
             "pestphp/pest-plugin": true,
             "php-http/discovery": true,
             "joshbrw/laravel-module-installer": true
+        },
+        "policy": {
+            "advisories": {
+                "block": false
+            }
         }
     },
     "minimum-stability": "dev",

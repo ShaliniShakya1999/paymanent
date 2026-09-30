@@ -98,7 +98,7 @@ class LoginController extends Controller
         if (!empty($loginData['value'])) {
             //Check User Status
             $checkLoggedInUser = User::where(['email' => $loginData['value']])->first(['status']);
-            if ($checkLoggedInUser->status == 'Inactive') {
+            if ($checkLoggedInUser && $checkLoggedInUser->status == 'Inactive') {
                 auth()->logout();
                 $this->helper->one_time_message('danger', __('Your account is inactivated. Please try again later!'));
                 return redirect('/login');
@@ -135,7 +135,7 @@ class LoginController extends Controller
                     }
 
                     //default_timezone
-                    $default_timezone = User::with(['user_detail:id,user_id,timezone'])->where(['id' => auth()->user()->id])->first(['id'])->user_detail->timezone;
+                    $default_timezone = User::with(['user_detail:id,user_id,timezone'])->where(['id' => auth()->user()->id])->first(['id'])?->user_detail?->timezone;
                     if (!$default_timezone) {
                         Session::put('dflt_timezone_user', session('dflt_timezone'));
                     } else {
@@ -254,7 +254,7 @@ class LoginController extends Controller
     protected function checkUserVerificationStatus($email)
     {
         $user = User::where(['email' => $email])->first(['id', 'first_name', 'last_name', 'email', 'status']);
-        if (preference('verification_mail') == 'Enabled' && $user->user_detail->email_verification == 0) {
+        if ($user && preference('verification_mail') == 'Enabled' && $user->user_detail?->email_verification == 0) {
             $verifyUser = VerifyUser::where(['user_id' => $user->id])->first(['id']);
             
             if (empty($verifyUser)) {

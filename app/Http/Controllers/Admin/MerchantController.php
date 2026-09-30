@@ -178,6 +178,11 @@ class MerchantController extends Controller
         }
     }
 
+    public function deleteLogo(Request $request)
+    {
+        return $this->deleteMerchantLogo($request);
+    }
+
     public function deleteMerchantLogo(Request $request)
     {
         $logo = $request->logo;

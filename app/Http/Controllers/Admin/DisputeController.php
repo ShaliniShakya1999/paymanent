@@ -75,6 +75,24 @@ class DisputeController extends Controller
         return json_encode($res);
     }
 
+    public function disputesTransactionsSearch(Request $request)
+    {
+        $search = $request->search;
+        $transaction = (new Transaction())->where('uuid', 'LIKE', '%' . $search . '%')->orWhere('id', 'LIKE', '%' . $search . '%')->limit(10)->get();
+
+        $res = [
+            'status' => 'fail',
+        ];
+        if (count($transaction) > 0)
+        {
+            $res = [
+                'status' => 'success',
+                'data'   => $transaction,
+            ];
+        }
+        return json_encode($res);
+    }
+
     public function add($id)
     {
         $data['menu']        = 'dispute';

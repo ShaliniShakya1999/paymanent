@@ -123,7 +123,7 @@ Route::group(['middleware' => ['auth:api-v2', 'check-user-inactive']], function 
         Route::get('/payment-methods', 'WithdrawalSettingController@paymentMethods');
         Route::get('/crypto-currencies', 'WithdrawalSettingController@cryptoCurrencies');
     });
-    Route::resource('/withdrawal-settings', WithdrawalSettingController::class)->middleware('permission:manage_withdrawal', 'check-user-suspended');
+    Route::apiResource('/withdrawal-settings', WithdrawalSettingController::class)->middleware('permission:manage_withdrawal', 'check-user-suspended');
 
     /**
      * Withdrawal routes

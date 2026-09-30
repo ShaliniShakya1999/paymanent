@@ -214,4 +214,54 @@ class MerchantPaymentController extends Controller
             return redirect('payment/fail');
         }
     }
+
+    public function mtsPayment(Request $request)
+    {
+        return $this->paymentSuccess($request);
+    }
+
+    public function stripePayment(Request $request)
+    {
+        return $this->paymentSuccess($request);
+    }
+
+    public function stripeMakePayment(Request $request)
+    {
+        return $this->paymentSuccess($request);
+    }
+
+    public function paypalPaymentSuccess(Request $request)
+    {
+        return $this->paymentSuccess($request);
+    }
+
+    public function payumoney(Request $request)
+    {
+        return $this->paymentSuccess($request);
+    }
+
+    public function payuPaymentSuccess(Request $request)
+    {
+        return $this->paymentSuccess($request);
+    }
+
+    public function merchantPayumoneyPaymentFail(Request $request)
+    {
+        return $this->fail();
+    }
+
+    public function coinPayments(Request $request)
+    {
+        return $this->paymentSuccess($request);
+    }
+
+    public function coinPaymentMakeTransaction(Request $request)
+    {
+        return $this->paymentSuccess($request);
+    }
+
+    public function viewCoinpaymentTransactionInfo(Request $request)
+    {
+        return redirect()->route('home');
+    }
 }

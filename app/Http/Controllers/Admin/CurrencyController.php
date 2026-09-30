@@ -270,6 +270,11 @@ class CurrencyController extends Controller
         }
     }
 
+    public function deleteImage(Request $request)
+    {
+        return $this->deleteCurrencyLogo($request);
+    }
+
     public function deleteCurrencyLogo(Request $request)
     {
         $logo = $request->logo;

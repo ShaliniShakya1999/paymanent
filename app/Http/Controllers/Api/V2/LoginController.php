@@ -40,7 +40,7 @@ class LoginController extends Controller
         } catch (LoginException $e) {
             return $this->unprocessableResponse([], $e->getMessage());
         } catch (Exception $e) {
-            return $this->unprocessableResponse([], __("Failed to process the request."));
+            return $this->unprocessableResponse([], $e->getMessage());
         }
     }
 

@@ -243,7 +243,7 @@ class AdminController extends Controller
     public function verifyToken($token)
     {
         if (!$token) {
-            return redirect()->route('admin.login')->withErrors(__('The :x does not exist.', ['x' => __('token')]));    
+            return redirect()->route('admin')->withErrors(__('The :x does not exist.', ['x' => __('token')]));    
         }
         
         $reset = DB::table('password_resets')->where('token', $token)->first();
@@ -252,22 +252,36 @@ class AdminController extends Controller
             return view('admin.auth.passwordForm', ['token' => $token]);
         }
         
-        return redirect()->route('admin.login')->withErrors(__('Token session has been destroyed. Please try to reset again.'));
+        return redirect()->route('admin')->withErrors(__('Token session has been destroyed. Please try to reset again.'));
     }
 
     public function confirmNewPassword(Request $request)
     {
+        $this->validate($request, [
+            'token' => 'required',
+            'new_password' => 'required',
+        ]);
+
         $token    = $request->token;
         $password = $request->new_password;
         $confirm  = DB::table('password_resets')->where('token', $token)->first(['email']);
+        if (!$confirm) {
+            $this->helper->one_time_message('error', __('Invalid or expired password reset token.'));
+            return redirect()->route('admin');
+        }
 
-        $admin           = Admin::where('email', $confirm->email)->first();
+        $admin = Admin::where('email', $confirm->email)->first();
+        if (!$admin) {
+            $this->helper->one_time_message('error', __('The :x does not exist.', ['x' => __('admin')]));
+            return redirect()->route('admin');
+        }
+
         $admin->password = Hash::make($password);
         $admin->save();
 
         DB::table('password_resets')->where('token', $token)->delete();
 
         $this->helper->one_time_message('success', __('The :x has been successfully saved.', ['x' => __('new password')]));
-        return redirect()->to('/admin');
+        return redirect()->route('admin');
     }
 }

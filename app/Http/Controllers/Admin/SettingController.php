@@ -280,6 +280,11 @@ class SettingController extends Controller
         }
     }
 
+    public function deleteLogo(Request $request)
+    {
+        return $this->deleteSettingLogo($request);
+    }
+
     //deleteSettingLogo
     public function deleteSettingLogo(Request $request)
     {
@@ -435,16 +440,24 @@ class SettingController extends Controller
                 } else {
                     $data = $request->all();
                     Config::set([
-                        'mail.driver' => isset($data['driver']) ? $data['driver'] : '',
-                        'mail.host' => isset($data['host']) ? $data['host'] : '',
-                        'mail.port' => isset($data['port']) ? $data['port'] : '',
-                        'mail.from' => [
+                        'mail.driver'                  => isset($data['driver']) ? $data['driver'] : '',
+                        'mail.default'                 => isset($data['driver']) ? $data['driver'] : 'smtp',
+                        'mail.host'                    => isset($data['host']) ? $data['host'] : '',
+                        'mail.port'                    => isset($data['port']) ? $data['port'] : '',
+                        'mail.from'                    => [
                             'address' => isset($data['from_address']) ? $data['from_address'] : '',
-                            'name'=> isset($data['from_name']) ? $data['from_name'] : ''
+                            'name'    => isset($data['from_name']) ? $data['from_name'] : ''
                         ],
-                        'mail.encryption' => isset($data['encryption']) ? $data['encryption'] : '',
-                        'mail.username' => isset($data['username']) ? $data['username'] : '',
-                        'mail.password' => isset($data['password']) ? $data['password'] : '',
+                        'mail.encryption'              => isset($data['encryption']) ? $data['encryption'] : '',
+                        'mail.username'                => isset($data['username']) ? $data['username'] : '',
+                        'mail.password'                => isset($data['password']) ? $data['password'] : '',
+                        'mail.mailers.smtp.transport'  => 'smtp',
+                        'mail.mailers.smtp.host'       => isset($data['host']) ? $data['host'] : '',
+                        'mail.mailers.smtp.port'       => isset($data['port']) ? $data['port'] : '',
+                        'mail.mailers.smtp.encryption' => isset($data['encryption']) ? $data['encryption'] : '',
+                        'mail.mailers.smtp.username'   => isset($data['username']) ? $data['username'] : '',
+                        'mail.mailers.smtp.password'   => isset($data['password']) ? $data['password'] : '',
+                        'mail.mailers.smtp.timeout'    => 5,
                     ]);
 
                     $fromInfo = config('mail.from');
@@ -769,5 +782,59 @@ class SettingController extends Controller
 
         $this->helper->one_time_message('success', __('The :x has been successfully saved.', ['x' => __('preference')]));
         return redirect(config('adminPrefix').'/settings/preference');
+    }
+
+    public function themeSet($theme)
+    {
+        Session::put('theme', $theme);
+        return redirect()->back();
+    }
+
+    public function enableWoocommerce(Request $request)
+    {
+        $data['menu'] = 'settings';
+        $data['settings_menu'] = 'enable-woocommerce';
+        $data['code_status'] = 1;
+
+        $setting = Setting::where('name', 'woocommerce_plugin')->first();
+        $plugin_name = $setting ? $setting->value : '';
+        $data['plugin_name'] = $plugin_name;
+
+        $infoSetting = Setting::where('name', 'woocommerce_info')->first();
+        $data['plugin_info'] = $infoSetting ? json_decode($infoSetting->value, true) : [];
+
+        $statusSetting = Setting::where('name', 'woocommerce_status')->first();
+        $data['publicationStatus'] = $statusSetting ? $statusSetting->value : 'Inactive';
+
+        if ($request->isMethod('post')) {
+            if ($request->hasFile('plugin')) {
+                $file = $request->file('plugin');
+                $filename = $file->getClientOriginalName();
+                $destination = public_path('uploads/woocommerce');
+                if (!file_exists($destination)) {
+                    mkdir($destination, 0777, true);
+                }
+                $file->move($destination, $filename);
+                Setting::updateOrCreate(['name' => 'woocommerce_plugin'], ['value' => $filename]);
+                $data['plugin_name'] = $filename;
+            }
+
+            $info = [
+                $request->plugin_name ?? '',
+                $request->plugin_uri ?? '',
+                $request->plugin_author ?? '',
+                $request->plugin_author_uri ?? '',
+                $request->plugin_base_url ?? '',
+                $request->plugin_description ?? '',
+                $request->plugin_brand ?? '',
+            ];
+            Setting::updateOrCreate(['name' => 'woocommerce_info'], ['value' => json_encode($info)]);
+            Setting::updateOrCreate(['name' => 'woocommerce_status'], ['value' => $request->publication_status ?? 'Inactive']);
+
+            $this->helper->one_time_message('success', __('WooCommerce settings updated successfully.'));
+            return redirect(config('adminPrefix') . '/settings/enable-woocommerce');
+        }
+
+        return view('admin.settings.enablewoocommerce', $data);
     }
 }

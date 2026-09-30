@@ -35,8 +35,10 @@ function updatePhoneInfo()
         $('#defaultCountry').val($('#phone').intlTelInput('getSelectedCountryData').iso2);
         $('#carrierCode').val($('#phone').intlTelInput('getSelectedCountryData').dialCode);
 
-        if ($('#phone').val != '') {
+        if ($.trim($('#phone').val()) !== '') {
             $("#formattedPhone").val($('#phone').intlTelInput("getNumber").replace(/-|\s/g,""));
+        } else {
+            $("#formattedPhone").val('');
         }
         resolve();
     });  

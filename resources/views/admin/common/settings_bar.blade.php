@@ -6,7 +6,7 @@
         <ul class="nav navbar-pills nav-tabs nav-stacked no-margin row settings-nav" role="tablist">
 
             @if(auth('admin')->user() && Common::has_permission(auth('admin')->user()->id, 'view_general_setting'))
-                <li class="{{ (Route::current()->uri() == config('adminPrefix') . '/settings') ? 'active' : '' }}">
+                <li class="{{ (Route::current()?->uri() == config('adminPrefix') . '/settings') ? 'active' : '' }}">
                     <a data-group="settings" href="{{ url(config('adminPrefix').'/settings') }}">
                         <i class="fa fa-gear">
                         </i>

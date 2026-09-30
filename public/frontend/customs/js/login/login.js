@@ -32,9 +32,11 @@ $('.demo-login').on('click', function () {
 
     if (loginFor == 'user') {
         $('#email_only').val('kyla@gmail.com');
+        $('#email_or_phone').val('kyla@gmail.com');
         $('#password').val('123456');
     } else if(loginFor == 'merchant') {
         $('#email_only').val('irish@gmail.com');
+        $('#email_or_phone').val('irish@gmail.com');
         $('#password').val('123456');
     }
 

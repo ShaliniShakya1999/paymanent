@@ -23,6 +23,15 @@ class ExchangeRateRequest extends CustomFormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'to_currency_id' => $this->to_currency_id ?? $this->to_currency ?? $this->currency_id,
+            'from_currency_id' => $this->from_currency_id ?? $this->from_currency,
+            'amount' => $this->amount ?? 1,
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -33,7 +42,7 @@ class ExchangeRateRequest extends CustomFormRequest
         return [
             'to_currency_id' => 'required|numeric|min:0|not_in:0',
             'from_currency_id' => 'required|numeric|min:0|not_in:0',
-            'amount' => 'required|numeric'
+            'amount' => 'nullable|numeric'
         ];
     }
 }

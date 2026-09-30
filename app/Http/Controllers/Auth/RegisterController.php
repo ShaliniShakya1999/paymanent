@@ -130,7 +130,9 @@ class RegisterController extends Controller
                     
                     // Check for duplicate phone using the same cleaning logic as createNewUser
                     if (!empty($request->phone)) {
-                        $formattedPhone = str_replace('+' . $request->carrierCode, "", $request->formattedPhone);
+                        $formattedPhone = !empty($request->formattedPhone)
+                            ? str_replace('+' . $request->carrierCode, "", $request->formattedPhone)
+                            : $request->phone;
                         $cleanedPhone = preg_replace("/[\s-]+/", "", $formattedPhone);
                         
                         if (User::where('phone', $cleanedPhone)->exists()) {
@@ -242,7 +244,7 @@ class RegisterController extends Controller
     public function verifyUser($token)
     {
         $verifyUser = VerifyUser::where('token', $token)->first();
-        if (isset($verifyUser))
+        if (isset($verifyUser) && isset($verifyUser->user) && isset($verifyUser->user->user_detail))
         {
             if (!$verifyUser->user->user_detail->email_verification)
             {

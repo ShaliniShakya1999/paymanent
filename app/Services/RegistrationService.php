@@ -35,15 +35,22 @@ class RegistrationService
     {
         try {
             
-            $formattedPhone   = str_replace('+' . $request->carrierCode, "", $request->formattedPhone);
-            if (!empty($request->phone) && $request->phone !==  $formattedPhone) {
-                throw new Exception(__('The phone number provided is incorrect'));
-            }
-
-            // Check for duplicate phone using the same cleaning logic as createNewUser
             if (!empty($request->phone)) {
-                $cleanedPhone = preg_replace("/[\s-]+/", "", $formattedPhone);
-                
+                $cleanedPhone = preg_replace("/[\s-]+/", "", $request->phone);
+                if (!empty($request->carrierCode)) {
+                    $cleanedPhone = preg_replace('/^\+?' . preg_quote($request->carrierCode, '/') . '/', '', $cleanedPhone);
+                }
+
+                if (!empty($request->formattedPhone)) {
+                    $formattedPhone = preg_replace("/[\s-]+/", "", $request->formattedPhone);
+                    if (!empty($request->carrierCode)) {
+                        $formattedPhone = preg_replace('/^\+?' . preg_quote($request->carrierCode, '/') . '/', '', $formattedPhone);
+                    }
+                    if ($cleanedPhone !== $formattedPhone) {
+                        throw new Exception(__('The phone number provided is incorrect'));
+                    }
+                }
+
                 if (User::where('phone', $cleanedPhone)->exists()) {
                     throw new Exception(__('The phone number has already been taken!'));
                 }
@@ -79,7 +86,7 @@ class RegistrationService
                 $userEmail, $userFormattedPhone, $user, settings('default_currency')
             );
    
-            if (isActive('TatumIo') && CryptoProvider::getStatus('TatumIo') == 'Active') {
+            if (!checkDemoEnvironment() && isActive('TatumIo') && CryptoProvider::getStatus('TatumIo') == 'Active') {
                 $generateUserCryptoWalletAddress = $this->user->generateUserTatumIoWalletAddress($user);
                 if ($generateUserCryptoWalletAddress['status'] == 401) {
                     throw new RegistrationException($generateUserCryptoWalletAddress['message']);          

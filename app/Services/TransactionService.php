@@ -33,8 +33,52 @@ class TransactionService
     {
         $data       = ['transactions' => [], 'totalRecords' => 0];
         $conditions = ['transactions.user_id' => $userId];
-        if ('allTransactions' == $type) {
-            $type = (new Transaction)::$transactionTypes;
+
+        $allTypes = (new Transaction)::$transactionTypes;
+        if (empty($allTypes)) {
+            $allTypes = \App\Models\TransactionType::pluck('id')->toArray();
+        }
+
+        if (empty($type) || 'allTransactions' === $type || 'all' === $type) {
+            $type = $allTypes;
+        } elseif (is_numeric($type)) {
+            $type = [(int)$type];
+        } elseif (is_string($type)) {
+            $typeLower = strtolower($type);
+            switch ($typeLower) {
+                case 'transferred':
+                case 'transfer':
+                case 'sent':
+                    $type = [3, 11, 13];
+                    break;
+                case 'received':
+                    $type = [4, 12, 14];
+                    break;
+                case 'exchange':
+                    $type = [5, 6];
+                    break;
+                case 'deposit':
+                    $type = [1];
+                    break;
+                case 'withdrawal':
+                case 'payout':
+                    $type = [2];
+                    break;
+                case 'request':
+                case 'request_money':
+                    $type = [7, 8];
+                    break;
+                case 'payment':
+                case 'merchant':
+                    $type = [9, 10];
+                    break;
+                default:
+                    $matchingIds = \App\Models\TransactionType::where('name', 'like', "%{$type}%")->pluck('id')->toArray();
+                    $type = !empty($matchingIds) ? $matchingIds : $allTypes;
+                    break;
+            }
+        } elseif (!is_array($type)) {
+            $type = $allTypes;
         }
         $transaction = Transaction::with([
             'currency:id,type,code,symbol,logo',

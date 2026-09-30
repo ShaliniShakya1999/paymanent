@@ -269,6 +269,19 @@ class CustomerController extends Controller
         return view('user.setting.two-fa', $data);
     }
 
+    public function UpdateProfileTwoFa(Request $request)
+    {
+        $userDetail = UserDetail::where(['user_id' => auth()->user()->id])->first();
+        if ($userDetail) {
+            if ($request->has('two_step_verification_type')) {
+                $userDetail->two_step_verification_type = $request->two_step_verification_type;
+                $userDetail->save();
+            }
+        }
+        $this->helper->one_time_message('success', __('Two factor authentication updated successfully.'));
+        return redirect('profile/2fa');
+    }
+
     public function disabledTwoFa(Request $request)
     {
         if ($request->ajax())

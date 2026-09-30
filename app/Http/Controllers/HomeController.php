@@ -26,6 +26,20 @@ class HomeController extends Controller
         return view('frontend.home.index', $data);
     }
 
+    public function services()
+    {
+        $data         = [];
+        $data['menu'] = 'services';
+        return view('frontend.pages.services', $data);
+    }
+
+    public function benefits()
+    {
+        $data         = [];
+        $data['menu'] = 'benefits';
+        return view('frontend.pages.benefits', $data);
+    }
+
     public function privacyPolicy()
     {
         $data = [];

@@ -17,6 +17,7 @@ use App\Models\Country;
 use Carbon\Carbon, Exception;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class VirtualcardHolderController extends Controller
 {
@@ -126,6 +127,25 @@ class VirtualcardHolderController extends Controller
         $virtualcardHolderData = VirtualcardHolderData::fromRequest($request);
         return $this->upsertCardHolder->execute($virtualcardHolder, $virtualcardHolderData);
 
+    }
+
+    public function duplicatePhoneNumberCheck(Request $request)
+    {
+        $phone = preg_replace("/[\s-]+/", "", $request->phone);
+        $holder = VirtualcardHolder::where('phone', $phone);
+        if ($request->filled('id')) {
+            $holder->where('id', '!=', $request->id);
+        }
+        if ($holder->exists()) {
+            return response()->json([
+                'status' => true,
+                'fail' => __('The :x is already exist.', ['x' => __('phone number')])
+            ]);
+        }
+        return response()->json([
+            'status' => false,
+            'success' => __('The :x is available.', ['x' => __('phone number')])
+        ]);
     }
 
 }

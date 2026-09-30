@@ -8,7 +8,7 @@
     <meta name="author" content="Techvillage">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ !empty(meta(Route::current()->uri(), 'title')) ? meta(Route::current()->uri(), 'title') . ' | ' : '' }} {{ settings('name') }}</title>
+    <title>{{ !empty(meta(Route::current()?->uri() ?? request()->path(), 'title')) ? meta(Route::current()?->uri() ?? request()->path(), 'title') . ' | ' : '' }} {{ settings('name') }}</title>
 
     <!-- css -->
     @include('user.layouts.partials.style')

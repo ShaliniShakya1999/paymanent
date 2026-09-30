@@ -7,6 +7,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Exports\RevenuesExport;
+use Illuminate\Http\Request;
 
 class RevenueController extends Controller
 {
@@ -88,5 +89,23 @@ class RevenueController extends Controller
         $data['date_range'] = (isset($from) && isset($to)) ? $from . ' To ' . $to : 'N/A';
 
         generatePDF('admin.revenues.revenues_report_pdf', 'revenues_report_', $data);
+    }
+
+    public function revenuesUserSearch(Request $request)
+    {
+        $search = $request->search;
+        $user   = (new Transaction())->getTransactionsUsersResponse($search, null);
+
+        $res = [
+            'status' => 'fail',
+        ];
+        if (count($user) > 0)
+        {
+            $res = [
+                'status' => 'success',
+                'data'   => $user,
+            ];
+        }
+        return json_encode($res);
     }
 }

@@ -40,7 +40,7 @@ class ActivityLog extends Model
         $log->user_id        = (int) $user_id;
         $log->type           = $type;
         $log->ip_address     = $ipAddress;
-        $log->browser_agent  = $userAgent;
+        $log->browser_agent  = !empty($userAgent) ? $userAgent : 'PayMoney App';
         $log->save();
     }
 

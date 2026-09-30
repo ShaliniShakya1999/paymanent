@@ -26,6 +26,12 @@ class TokenSendController extends Controller
         $this->service = $service;
     }
 
+    public function providerStatus()
+    {
+        $response['status'] = \App\Models\CryptoProvider::getStatus('TatumIo');
+        return $this->okResponse($response);
+    }
+
     public function userCryptoAddress()
     {
         try {

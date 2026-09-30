@@ -56,4 +56,56 @@ class UserTransactionController extends Controller
 
         generatePDF('user.merchant.merchant-payment-pdf', 'merchant-payment_', $data);
     }
+
+    /**
+     * Show transaction details
+     */
+    public function showDetails($id)
+    {
+        return redirect()->route('user.transactions.index');
+    }
+
+    /**
+     * Get transaction by AJAX
+     */
+    public function getTransaction(Request $request)
+    {
+        $transaction = Transaction::with([
+            'currency:id,code,symbol',
+            'user:id,first_name,last_name',
+            'end_user:id,first_name,last_name',
+            'payment_method:id,name',
+        ])->find($request->id);
+
+        return response()->json([
+            'status' => (bool) $transaction,
+            'transaction' => $transaction
+        ]);
+    }
+
+    /**
+     * Generate general transaction PDF or delegate to specific print route
+     */
+    public function getTransactionPrintPdf($id)
+    {
+        $transaction = Transaction::with([
+            'currency:id,code,symbol',
+            'user:id,first_name,last_name',
+            'end_user:id,first_name,last_name',
+            'payment_method:id,name',
+        ])->where(['id' => $id])->first();
+
+        if (!$transaction) {
+            (new \App\Http\Helpers\Common())->one_time_message('error', __('Transaction not found.'));
+            return redirect()->route('user.transactions.index');
+        }
+
+        $info = getTransactionInfo($transaction->transaction_type?->name, $transaction);
+        if (isset($info['print']) && $info['print'] !== 'user.transactions.print' && \Route::has($info['print'])) {
+            return redirect()->route($info['print'], $id);
+        }
+
+        $data['transaction'] = $transaction;
+        generatePDF('user.exchange-currency.exchange-transaction-pdf', 'transaction_', $data);
+    }
 }

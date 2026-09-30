@@ -36,7 +36,9 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         // Clear the X-Powered-By header for security reasons
-        header('x-powered-by:');
+        if (!headers_sent()) {
+            header('x-powered-by:');
+        }
 
         if (env('APP_INSTALL') == true) {
 
@@ -60,10 +62,12 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
 
-            $adminUrlPrefix = preference('admin_url_prefix');
-            if (!empty($adminUrlPrefix)) {
-                Config::set(['adminPrefix' => $adminUrlPrefix]);
-                View::share('adminPrefix', $adminUrlPrefix);
+            if (Schema::hasTable('preferences')) {
+                $adminUrlPrefix = preference('admin_url_prefix');
+                if (!empty($adminUrlPrefix)) {
+                    Config::set(['adminPrefix' => $adminUrlPrefix]);
+                    View::share('adminPrefix', $adminUrlPrefix);
+                }
             }
         }
     }

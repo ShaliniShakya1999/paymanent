@@ -10,10 +10,9 @@ Route::get('/clear', function () {
 });
 
 
-// Route::get('/', 'HomeController@index')->name('home');
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+Route::get('/', 'HomeController@index')->name('home');
+Route::get('/services', 'HomeController@services')->name('services');
+Route::get('/benefits', 'HomeController@benefits')->name('benefits');
 Route::get('/privacy-policy', 'HomeController@privacyPolicy')->name('privacy_policy');
 
 // changing-language

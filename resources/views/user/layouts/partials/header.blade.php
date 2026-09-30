@@ -5,9 +5,7 @@
         </svg>
     </a>
     <div class="border-b-DF d-flex align-items-center w-100 h-70">
-        <div class="input-group flex-nowrap search-fill">
-            
-        </div>
+        <div class="flex-grow-1"></div>
 
         <div class="color-parent form-check form-switch d-flex mr-33">
             <div class="switch d-flex align-items-center justify-content-center">

@@ -61,6 +61,11 @@ class ContentController extends Controller
 
     public function downloadPackage()
     {
-        return response()->download(\Storage::disk('local')->path('paymoney_sdk.zip'));
+        $path = \Storage::disk('local')->path('paymoney_sdk.zip');
+        if (!file_exists($path)) {
+            (new \App\Http\Helpers\Common())->one_time_message('error', __('The requested file does not exist.'));
+            return back();
+        }
+        return response()->download($path);
     }
 }

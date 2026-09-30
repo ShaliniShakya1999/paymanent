@@ -277,5 +277,13 @@ class DepositController extends Controller
         return redirect()->route('home');
     }
 
+    public function coinpaymentCheckStatus(Request $request)
+    {
+        return response('OK', 200);
+    }
 
+    public function store(Request $request)
+    {
+        return $this->depositGateway($request);
+    }
 }

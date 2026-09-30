@@ -61,7 +61,7 @@ class ForgotPasswordController extends Controller
     {
         if (!$token) {
             $this->helper->one_time_message('error', __('The :x does not exist.', ['x' => __('token')]));
-            return back();
+            return redirect()->route('user.forget_password');
         }
         $reset = DB::table('password_resets')->where('token', $token)->first();
         if ($reset) {
@@ -69,7 +69,7 @@ class ForgotPasswordController extends Controller
             return view('frontend.auth.setPassword', $data);
         } else {
             $this->helper->one_time_message('error', __('Token session has been destroyed. Please try to reset again.'));
-            return back();
+            return redirect()->route('user.forget_password');
         }
     }
 
@@ -83,8 +83,18 @@ class ForgotPasswordController extends Controller
 
         $token    = $request->token;
         $password = $request->password;
-        $confirm = DB::table('password_resets')->where('token', $token)->first();
-        $user           = User::where('email', $confirm->email)->first();
+        $confirm  = DB::table('password_resets')->where('token', $token)->first();
+        if (!$confirm) {
+            $this->helper->one_time_message('error', __('Invalid or expired password reset token.'));
+            return redirect()->to('/login');
+        }
+
+        $user = User::where('email', $confirm->email)->first();
+        if (!$user) {
+            $this->helper->one_time_message('error', __('User not found.'));
+            return redirect()->to('/login');
+        }
+
         $user->password = Hash::make($password);
         $user->save();
         DB::table('password_resets')->where('token', $token)->delete();

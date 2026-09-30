@@ -501,4 +501,14 @@ class WithdrawalController extends Controller
         generatePDF('user.withdrawal.withdrawal-pdf', 'withdrawal_', $data);
     }
     //Payout - ends
+
+    public function selectWithdrawalMethod($id)
+    {
+        return redirect()->route('user.withdrawal.create', ['method' => $id]);
+    }
+
+    public function withdrawalStore(Request $request)
+    {
+        return $this->withdrawalConfirm($request);
+    }
 }
