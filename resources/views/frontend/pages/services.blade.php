@@ -666,7 +666,7 @@
                 <div class="position-relative">
                     <!-- cURL -->
                     <pre class="api-code-pre api-snippet-content" id="tab-curl"><code>curl -X POST "{{ url('/api/v2/payment/create') }}" \
-  -H "Authorization: Bearer sk_live_948fbc2e7a10984da0e82" \
+  -H "Authorization: Bearer YOUR_SECRET_KEY" \
   -H "Content-Type: application/json" \
   -H "Idempotency-Key: idemp_{{ md5(uniqid()) }}" \
   -d '{
@@ -691,7 +691,7 @@ async function createPaymentSession() {
     cancel_url: 'https://yourdomain.com/checkout/cancel'
   }, {
     headers: {
-      'Authorization': 'Bearer sk_live_948fbc2e7a10984da0e82',
+      'Authorization': 'Bearer YOUR_SECRET_KEY',
       'Content-Type': 'application/json',
       'Idempotency-Key': 'idemp_' + Date.now()
     }
@@ -711,7 +711,7 @@ use GuzzleHttp\Client;
 $client = new Client();
 $response = $client-&gt;request('POST', '{{ url("/api/v2/payment/create") }}', [
   'headers' =&gt; [
-    'Authorization' =&gt; 'Bearer sk_live_948fbc2e7a10984da0e82',
+    'Authorization' =&gt; 'Bearer YOUR_SECRET_KEY',
     'Content-Type'  =&gt; 'application/json',
     'Idempotency-Key' =&gt; 'idemp_' . bin2hex(random_bytes(8))
   ],
@@ -734,7 +734,7 @@ import uuid
 
 url = "{{ url('/api/v2/payment/create') }}"
 headers = {
-    "Authorization": "Bearer sk_live_948fbc2e7a10984da0e82",
+    "Authorization": "Bearer YOUR_SECRET_KEY",
     "Content-Type": "application/json",
     "Idempotency-Key": f"idemp_{uuid.uuid4().hex}"
 }
