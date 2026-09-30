@@ -1,77 +1,373 @@
 @extends('user.layouts.app')
-@push('css')
-<link rel="stylesheet" href="{{ asset('css/bbps-dashboard.css') }}">
-@endpush
+
 @section('content')
-<div class="bbps-page-wrap">
-    <div class="bbps-main">
-        <div class="bbps-hero bbps-animate-in">
-            <h1 class="bbps-title">BBPS Bill Payment</h1>
-            <p class="bbps-subtitle">Pay your utility bills instantly. Select a category or search for your biller.</p>
-        </div>
-        <div class="bbps-card-wrap mb-4 bbps-animate-in bbps-delay-1">
-            <p class="bbps-section-label mb-2">Step 1</p>
-            <h2 class="h5 fw-bold text-dark mb-3">Enter bill details</h2>
-            <form id="bbpsBillForm" class="bbps-form">
-                @csrf
-                <div class="row g-3">
-                    <div class="col-12 col-md-5">
-                        <label class="form-label small fw-medium">Consumer Number</label>
-                        <input type="text" class="form-control" id="consumerNumber" placeholder="Enter consumer/customer ID" required>
+<div class="bg-white pxy-62 shadow" id="billPaymentDashboard">
+    <p class="mb-0 f-26 gilroy-Semibold text-uppercase text-center">{{ __('Bill Payment (BBPS)') }}</p>
+    <p class="mb-0 text-center f-13 gilroy-medium text-gray mt-4 dark-A0">{{ __('Pay electricity, water, gas, mobile and other utility bills') }}</p>
+    <p class="mb-0 text-center f-18 gilroy-medium text-dark dark-5B mt-2">{{ $content_title ?? __('Bill Payment') }}</p>
+
+    @include('user.common.alert')
+
+    <div class="mt-28" style="max-width: 980px; margin: 0 auto;">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="p-0">
+                    <div>
+                        <p class="mb-1 f-18 gilroy-Semibold text-dark">{{ __('Pay a Bill') }}</p>
+                        <p class="mb-0 text-muted f-13">{{ __('Select category, operator and fetch the latest bill details before payment.') }}</p>
                     </div>
-                    <div class="col-12 col-md-5">
-                        <label class="form-label small fw-medium">Operator / Biller</label>
-                        <select class="form-select" id="billerSelect">
-                            <option value="">Loading...</option>
-                        </select>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6 mt-20">
+                            <label class="gilroy-medium text-gray-100 mb-2 f-15">{{ __('Category') }}</label>
+                            <select class="form-control" id="bbps_category" style="display:block;visibility:visible;width:100%;">
+                                <option value="">{{ __('Select category') }}</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mt-20">
+                            <label class="gilroy-medium text-gray-100 mb-2 f-15">{{ __('Operator') }}</label>
+                            <select class="form-control" id="bbps_operator" style="display:block;visibility:visible;width:100%;">
+                                <option value="">{{ __('Select operator') }}</option>
+                            </select>
+                            <input type="hidden" id="bbps_operator_name" value="">
+                        </div>
+
+                        <div class="col-md-12 mt-20">
+                            <label class="gilroy-medium text-gray-100 mb-2 f-15" id="bbps_consumer_label">{{ __('Consumer / Account Number') }}</label>
+                            <input type="text" class="form-control input-form-control apply-bg" id="bbps_consumer_number" placeholder="{{ __('Select operator first, then enter as per label') }}">
+                            <small class="text-muted f-12 mt-1 d-block" id="bbps_consumer_hint">{{ __('Select category and operator to see what to enter, such as Consumer ID, CA Number, Mobile Number or K Number.') }}</small>
+                        </div>
+
                     </div>
-                    <div class="col-12 col-md-2 d-flex align-items-end">
-                        <button type="button" class="btn btn-primary w-100" id="fetchBillBtn">Fetch Bill</button>
+
+                    <div class="mt-4">
+                        <button type="button" class="btn btn-primary" id="bbps_fetch_bill_btn">{{ __('Fetch Bill Details') }}</button>
+                        <button type="button" class="btn btn-default" id="bbps_reset_btn" style="margin-left: 8px;">{{ __('Reset') }}</button>
                     </div>
-                </div>
-            </form>
-        </div>
-        <div class="bbps-card-wrap mb-4 d-none bbps-animate-in" id="billSummaryCard">
-            <p class="bbps-section-label mb-2">Step 2</p>
-            <h2 class="h5 fw-bold text-dark mb-3">Bill summary</h2>
-            <div class="bbps-bill-summary">
-                <div class="row g-3">
-                    <div class="col-6 col-md-3"><p class="small text-muted mb-0">Customer name</p><p class="fw-semibold mb-0" id="summaryName">—</p></div>
-                    <div class="col-6 col-md-3"><p class="small text-muted mb-0">Bill amount</p><p class="bbps-amount mb-0" id="summaryAmount">₹ 0</p></div>
-                    <div class="col-6 col-md-3"><p class="small text-muted mb-0">Due date</p><p class="fw-semibold mb-0" id="summaryDueDate">—</p></div>
-                    <div class="col-6 col-md-3"><p class="small text-muted mb-0">Biller</p><p class="fw-semibold mb-0" id="summaryBiller">—</p></div>
+
+                    <div id="bbps_inline_message" class="mt-3 d-none p-3 border rounded"></div>
                 </div>
             </div>
         </div>
-        <div class="bbps-card-wrap mb-4 bbps-animate-in bbps-delay-3" id="paymentSection">
-            <p class="bbps-section-label mb-2">Step 3</p>
-            <h2 class="h5 fw-bold text-dark mb-3">Pay bill</h2>
-            <button type="button" class="btn btn-primary px-5 py-3" id="payNowBtn">Pay Now</button>
-        </div>
-        <div class="bbps-card-wrap mb-4 d-none" id="successScreen">
-            <div class="bbps-success-screen">
-                <div class="bbps-success-icon">✓</div>
-                <h3 class="h5 fw-bold text-dark mb-1">Payment successful</h3>
-                <p class="text-muted mb-0">Your bill has been paid successfully.</p>
-                <p class="bbps-txn-id mb-0" id="successTxnId">—</p>
+
+        <div id="bbps_bill_summary" class="mt-20 p-4 d-none bg-white">
+            <div>
+                <p class="mb-1 f-18 gilroy-Semibold">{{ __('Bill Summary') }}</p>
+                <p class="mb-0 text-muted f-13">{{ __('Review fetched details carefully before making payment.') }}</p>
+            </div>
+
+            <input type="hidden" id="bbps_bill_fetch" value="">
+            <input type="hidden" id="bbps_bill_amount_val" value="">
+
+            <div class="row mt-3">
+                <div class="col-md-4">
+                    <div class="p-3 bg-light" style="border-radius: 8px;">
+                        <small class="text-muted d-block">{{ __('Amount') }}</small>
+                        <strong id="bbps_bill_amount">0</strong>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light" style="border-radius: 8px;">
+                        <small class="text-muted d-block">{{ __('Customer Name') }}</small>
+                        <strong id="bbps_bill_name">—</strong>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light" style="border-radius: 8px;">
+                        <small class="text-muted d-block">{{ __('Due Date') }}</small>
+                        <strong id="bbps_bill_due_date">—</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3 p-3 bg-light d-none" id="bbps_bill_raw_wrap" style="border-radius: 8px;">
+                <small class="text-muted d-block mb-2">{{ __('Fetched Bill Data') }}</small>
+                <div id="bbps_bill_raw" class="row"></div>
+            </div>
+
+            <div class="mt-4">
+                <button type="button" class="btn btn-success" id="bbps_pay_btn">{{ __('Confirm & Pay') }}</button>
+                <button type="button" class="btn btn-default" id="bbps_hide_summary_btn" style="margin-left: 8px;">{{ __('Hide Summary') }}</button>
             </div>
         </div>
+
+        <div class="mt-20 p-4 bg-white">
+            <div>
+                <p class="mb-1 f-18 gilroy-Semibold">{{ __('Status Enquiry') }}</p>
+                <p class="mb-0 text-muted f-13">{{ __('Check the payment status any time using the reference ID.') }}</p>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-9">
+                    <label class="gilroy-medium text-gray-100 mb-2 f-15">{{ __('Reference ID') }}</label>
+                    <input type="text" class="form-control input-form-control apply-bg" id="bbps_reference_id" placeholder="{{ __('Enter payment reference id') }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="gilroy-medium text-gray-100 mb-2 f-15">&nbsp;</label>
+                    <button type="button" class="btn btn-default btn-block" id="bbps_status_btn">{{ __('Check Status') }}</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="bbps_status_card" class="mt-20 p-3 border rounded d-none"></div>
     </div>
-    <div id="bbpsToastContainer"></div>
 </div>
-@push('js')
+
 <script>
-(function(){
-    var getOperatorsUrl='{{ url("bill-payment/get-operators") }}', fetchBillUrl='{{ url("bill-payment/fetch-bill") }}', payBillUrl='{{ url("bill-payment/pay") }}';
-    var csrfToken=document.querySelector('#bbpsBillForm input[name="_token"]')?document.querySelector('#bbpsBillForm input[name="_token"]').value:(document.querySelector('meta[name="csrf-token"]')&&document.querySelector('meta[name="csrf-token"]').content);
-    var lastBillFetch=null, lastOperatorId=null, lastOperatorName=null, lastCanumber=null, lastAmount=null;
-    function showToast(msg,type){ type=type||'success'; var c=document.getElementById('bbpsToastContainer'); var t=document.createElement('div'); t.className='alert alert-'+(type==='success'?'success':'danger')+' alert-dismissible fade show'; t.innerHTML=msg+' <button type="button" class="btn-close" data-bs-dismiss="alert"></button>'; c.appendChild(t); setTimeout(function(){t.remove();},4000); }
-    function setOperatorDropdown(operators){ var sel=document.getElementById('billerSelect'); sel.innerHTML='<option value="">Select biller</option>'; if(Array.isArray(operators)){ operators.forEach(function(op){ var id=op.id||op.operator_id||op.value; var name=op.name||op.operator_name||op.text||String(id); if(id){ var o=document.createElement('option'); o.value=id; o.textContent=name; o.dataset.name=name; sel.appendChild(o); } }); } else if(operators&&typeof operators==='object'){ Object.keys(operators).forEach(function(id){ var n=operators[id]; if(typeof n==='string'){ var o=document.createElement('option'); o.value=id; o.textContent=n; o.dataset.name=n; sel.appendChild(o); } }); } }
-    async function loadOperators(){ var sel=document.getElementById('billerSelect'); sel.innerHTML='<option value="">Loading...</option>'; try{ var r=await fetch(getOperatorsUrl,{method:'POST',headers:{'X-CSRF-TOKEN':csrfToken,'Accept':'application/json','Content-Type':'application/json'},body:JSON.stringify({mode:'online'})}); var d=await r.json(); if(d.success&&d.data){ setOperatorDropdown(d.data); } else{ sel.innerHTML='<option value="">Failed to load billers</option>'; showToast(d.message||'Failed to load billers.','error'); } }catch(e){ sel.innerHTML='<option value="">Failed to load billers</option>'; showToast('Failed to load billers.','error'); } }
-    loadOperators();
-    document.getElementById('fetchBillBtn').addEventListener('click',async function(){ var consumer=document.getElementById('consumerNumber').value.trim(); var billerSel=document.getElementById('billerSelect'); var biller=billerSel.value; if(!consumer||!biller){ showToast('Please enter consumer number and select biller.','error'); return; } var btn=this; btn.disabled=true; btn.textContent='Fetching...'; try{ var r=await fetch(fetchBillUrl,{method:'POST',headers:{'X-CSRF-TOKEN':csrfToken,'Accept':'application/json','Content-Type':'application/json'},body:JSON.stringify({operator:biller,canumber:consumer,mode:'online'})}); var d=await r.json(); if(d.success&&d.data){ var data=d.data; var billFetch=data.bill_fetch||data.data||data; var userName=billFetch.userName||billFetch.user_name||billFetch.customerName||'—'; var billAmount=billFetch.billAmount||billFetch.bill_amount||billFetch.billnetamount||billFetch.amount||'0'; var dueDate=billFetch.dueDate||billFetch.due_date||'—'; lastBillFetch=billFetch; lastOperatorId=biller; lastOperatorName=billerSel.selectedOptions[0]?(billerSel.selectedOptions[0].dataset.name||billerSel.selectedOptions[0].textContent):biller; lastCanumber=consumer; lastAmount=parseFloat(String(billAmount).replace(/[^0-9.]/g,''))||0; document.getElementById('summaryName').textContent=userName; document.getElementById('summaryAmount').textContent='₹ '+String(billAmount); document.getElementById('summaryDueDate').textContent=dueDate; document.getElementById('summaryBiller').textContent=lastOperatorName; document.getElementById('billSummaryCard').classList.remove('d-none'); showToast('Bill fetched successfully.'); } else{ showToast(d.message||'Failed to fetch bill.','error'); } }catch(e){ showToast('Failed to fetch bill.','error'); } finally{ btn.disabled=false; btn.textContent='Fetch Bill'; } });
-    document.getElementById('payNowBtn').addEventListener('click',async function(){ if(!lastBillFetch){ showToast('Please fetch bill first.','error'); return; } var btn=this; btn.disabled=true; btn.innerHTML='Processing...'; try{ var r=await fetch(payBillUrl,{method:'POST',headers:{'X-CSRF-TOKEN':csrfToken,'Accept':'application/json','Content-Type':'application/json'},body:JSON.stringify({operator:lastOperatorId,operator_name:lastOperatorName,canumber:lastCanumber,amount:lastAmount,mode:'online',bill_fetch:lastBillFetch})}); var d=await r.json(); if(d.success){ document.getElementById('paymentSection').classList.add('d-none'); document.getElementById('billSummaryCard').classList.add('d-none'); document.getElementById('successScreen').classList.remove('d-none'); document.getElementById('successTxnId').textContent=d.reference_id||('TXN'+Date.now()); showToast(d.message||'Payment successful!'); } else{ showToast(d.message||'Payment failed.','error'); } }catch(e){ showToast('Payment request failed.','error'); } finally{ btn.disabled=false; btn.innerHTML='Pay Now'; } });
-})();
+document.addEventListener('DOMContentLoaded', function() {
+    var baseUrl = '{{ url("/") }}';
+    var csrf = '{{ csrf_token() }}';
+    var operators = [];
+    var categories = [];
+
+    function showInlineMessage(success, message) {
+        var el = document.getElementById('bbps_inline_message');
+        el.classList.remove('d-none');
+        el.className = 'mt-3 p-3 border rounded ' + (success ? 'border-success text-success' : 'border-danger text-danger');
+        el.textContent = message || '';
+    }
+
+    function showStatusCard(success, html) {
+        var card = document.getElementById('bbps_status_card');
+        card.classList.remove('d-none');
+        card.innerHTML = html || '';
+        card.className = 'mt-20 p-3 border rounded ' + (success ? 'border-success' : 'border-danger');
+    }
+
+    function resetSummary() {
+        document.getElementById('bbps_bill_summary').classList.add('d-none');
+        document.getElementById('bbps_bill_fetch').value = '';
+        document.getElementById('bbps_bill_amount_val').value = '';
+        document.getElementById('bbps_bill_amount').textContent = '0';
+        document.getElementById('bbps_bill_name').textContent = '—';
+        document.getElementById('bbps_bill_due_date').textContent = '—';
+        document.getElementById('bbps_bill_raw').innerHTML = '';
+        document.getElementById('bbps_bill_raw_wrap').classList.add('d-none');
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function formatBillData(raw) {
+        var html = '';
+        Object.keys(raw || {}).forEach(function(key) {
+            var value = raw[key];
+            if (value !== null && typeof value === 'object') {
+                value = JSON.stringify(value);
+            }
+            html += ''
+                + '<div class="col-md-6 mt-2">'
+                + '  <div class="bg-white p-3" style="border-radius: 8px;">'
+                + '    <small class="text-muted d-block">' + escapeHtml(key) + '</small>'
+                + '    <strong style="word-break: break-word;">' + escapeHtml(value === null || value === undefined || value === '' ? '—' : value) + '</strong>'
+                + '  </div>'
+                + '</div>';
+        });
+        return html;
+    }
+
+    function buildFormattedResponse(raw) {
+        if (!raw || typeof raw !== 'object') {
+            return '';
+        }
+        return '<div class="mt-3"><div class="row">' + formatBillData(raw) + '</div></div>';
+    }
+
+    function getOperators() {
+        fetch(baseUrl + '/bill-payment/get-operators', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+            body: JSON.stringify({ mode: document.getElementById('bbps_category').value })
+        }).then(function(r) { return r.json(); }).then(function(res) {
+            if (res.success && res.operators && res.operators.length) {
+                operators = res.operators;
+                categories = res.categories || [];
+                var catSel = document.getElementById('bbps_category');
+                catSel.innerHTML = '<option value="">{{ __("Select category") }}</option>';
+                categories.forEach(function(c) {
+                    catSel.innerHTML += '<option value="' + c + '">' + c + '</option>';
+                });
+                showInlineMessage(true, '{{ __("Operator list loaded successfully.") }}');
+            } else {
+                showInlineMessage(false, res.message || '{{ __("Unable to load operator list.") }}');
+            }
+            fillOperators();
+        }).catch(function() {
+            document.getElementById('bbps_operator').innerHTML = '<option value="">{{ __("Failed to load") }}</option>';
+            showInlineMessage(false, '{{ __("Request failed while loading operators.") }}');
+        });
+    }
+
+    function fillOperators() {
+        var cat = document.getElementById('bbps_category').value;
+        var opSel = document.getElementById('bbps_operator');
+        opSel.innerHTML = '<option value="">{{ __("Select operator") }}</option>';
+        operators.filter(function(o) {
+            return !cat || (o.category || o.operator_type) === cat;
+        }).forEach(function(o) {
+            var id = o.operator_id || o.id || o.operatorId;
+            var name = o.operator_name || o.name || o.operatorName || id;
+            var displayName = (o.displayname || o.display_name || 'Consumer / Account Number').replace(/"/g, '&quot;');
+            opSel.innerHTML += '<option value="' + id + '" data-name="' + (name || '').replace(/"/g, '&quot;') + '" data-displayname="' + displayName + '">' + name + '</option>';
+        });
+        updateConsumerFieldHint();
+    }
+
+    function updateConsumerFieldHint() {
+        var opSel = document.getElementById('bbps_operator');
+        var opt = opSel.options[opSel.selectedIndex];
+        var labelEl = document.getElementById('bbps_consumer_label');
+        var inputEl = document.getElementById('bbps_consumer_number');
+        var hintEl = document.getElementById('bbps_consumer_hint');
+        var displayName = opt ? (opt.getAttribute('data-displayname') || '').replace(/&quot;/g, '"') : '';
+        if (displayName) {
+            labelEl.textContent = displayName;
+            inputEl.placeholder = '{{ __("Enter") }} ' + displayName;
+            hintEl.textContent = '{{ __("Enter the") }} ' + displayName + ' {{ __("exactly as shown on your bill.") }}';
+        } else {
+            labelEl.textContent = '{{ __("Consumer / Account Number") }}';
+            inputEl.placeholder = '{{ __("Select operator first, then enter as per label") }}';
+            hintEl.textContent = '{{ __("Select category and operator to see what to enter, such as Consumer ID, CA Number, Mobile Number or K Number.") }}';
+        }
+    }
+
+    document.getElementById('bbps_category').addEventListener('change', function() {
+        fillOperators();
+        resetSummary();
+    });
+
+    document.getElementById('bbps_operator').addEventListener('change', function() {
+        var opt = this.options[this.selectedIndex];
+        document.getElementById('bbps_operator_name').value = opt ? opt.getAttribute('data-name') || '' : '';
+        updateConsumerFieldHint();
+        resetSummary();
+    });
+
+    document.getElementById('bbps_reset_btn').addEventListener('click', function() {
+        document.getElementById('bbps_category').value = '';
+        document.getElementById('bbps_operator').innerHTML = '<option value="">{{ __("Select operator") }}</option>';
+        document.getElementById('bbps_operator_name').value = '';
+        document.getElementById('bbps_consumer_number').value = '';
+        document.getElementById('bbps_reference_id').value = '';
+        document.getElementById('bbps_inline_message').classList.add('d-none');
+        document.getElementById('bbps_status_card').classList.add('d-none');
+        fillOperators();
+        resetSummary();
+    });
+
+    document.getElementById('bbps_hide_summary_btn').addEventListener('click', function() {
+        resetSummary();
+    });
+
+    document.getElementById('bbps_fetch_bill_btn').addEventListener('click', function() {
+        var opId = document.getElementById('bbps_operator').value;
+        var canumber = document.getElementById('bbps_consumer_number').value.trim();
+        if (!opId || !canumber) {
+            showInlineMessage(false, '{{ __("Please select operator and enter consumer number.") }}');
+            return;
+        }
+        this.disabled = true;
+        fetch(baseUrl + '/bill-payment/fetch-bill', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+            body: JSON.stringify({
+                operator_id: opId,
+                consumer_number: canumber,
+                mode: document.getElementById('bbps_category').value
+            })
+        }).then(function(r) { return r.json(); }).then(function(res) {
+            document.getElementById('bbps_fetch_bill_btn').disabled = false;
+            if (res.success && res.bill_fetch != null) {
+                var raw = (typeof res.bill_fetch === 'object') ? res.bill_fetch : {};
+                document.getElementById('bbps_bill_fetch').value = typeof res.bill_fetch === 'object' ? JSON.stringify(res.bill_fetch) : res.bill_fetch;
+                document.getElementById('bbps_bill_amount').textContent = res.amount != null ? res.amount : '—';
+                document.getElementById('bbps_bill_amount_val').value = res.amount != null ? res.amount : '0';
+                document.getElementById('bbps_bill_name').textContent = (raw.name || raw.userName || (res.data && res.data.name) || '—');
+                document.getElementById('bbps_bill_due_date').textContent = (raw.duedate || raw.dueDate || (res.data && res.data.duedate) || '—');
+                if (typeof res.bill_fetch === 'object') {
+                    document.getElementById('bbps_bill_raw').innerHTML = formatBillData(res.bill_fetch);
+                    document.getElementById('bbps_bill_raw_wrap').classList.remove('d-none');
+                }
+                document.getElementById('bbps_bill_summary').classList.remove('d-none');
+                showInlineMessage(true, res.message || '{{ __("Bill details fetched successfully.") }}');
+            } else {
+                resetSummary();
+                showInlineMessage(false, res.message || '{{ __("Failed to fetch bill.") }}');
+            }
+        }).catch(function() {
+            document.getElementById('bbps_fetch_bill_btn').disabled = false;
+            showInlineMessage(false, '{{ __("Request failed while fetching bill.") }}');
+        });
+    });
+
+    document.getElementById('bbps_pay_btn').addEventListener('click', function() {
+        var payload = {
+            operator_id: document.getElementById('bbps_operator').value,
+            operator_name: document.getElementById('bbps_operator_name').value,
+            category: document.getElementById('bbps_category').value,
+            consumer_number: document.getElementById('bbps_consumer_number').value.trim(),
+            amount: document.getElementById('bbps_bill_amount_val').value,
+            bill_fetch: document.getElementById('bbps_bill_fetch').value,
+            mode: document.getElementById('bbps_category').value,
+            _token: csrf
+        };
+        this.disabled = true;
+        fetch(baseUrl + '/bill-payment/pay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+            body: JSON.stringify(payload)
+        }).then(function(r) { return r.json(); }).then(function(res) {
+            document.getElementById('bbps_pay_btn').disabled = false;
+            var html = res.success
+                ? '<p class="text-success mb-0">' + (res.message || 'Success') + '</p><p class="f-12 mt-1">Ref: ' + (res.reference_id || '') + '</p>'
+                : '<p class="text-danger mb-0">' + (res.message || 'Payment failed') + '</p>';
+            if (res.data) {
+                html += buildFormattedResponse(res.data);
+            }
+            showStatusCard(!!res.success, html);
+            if (res.reference_id) {
+                document.getElementById('bbps_reference_id').value = res.reference_id;
+            }
+            if (res.success) {
+                resetSummary();
+            }
+        }).catch(function() {
+            document.getElementById('bbps_pay_btn').disabled = false;
+            showStatusCard(false, '<p class="text-danger mb-0">{{ __("Request failed while paying bill.") }}</p>');
+        });
+    });
+
+    document.getElementById('bbps_status_btn').addEventListener('click', function() {
+        var referenceId = document.getElementById('bbps_reference_id').value.trim();
+        if (!referenceId) {
+            showStatusCard(false, '<p class="text-danger mb-0">{{ __("Please enter reference ID.") }}</p>');
+            return;
+        }
+        this.disabled = true;
+        fetch(baseUrl + '/bill-payment/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+            body: JSON.stringify({ reference_id: referenceId, _token: csrf })
+        }).then(function(r) { return r.json(); }).then(function(res) {
+            document.getElementById('bbps_status_btn').disabled = false;
+            var success = !!(res.success || res.status || (res.response_code === 1));
+            var html = '<p class="' + (success ? 'text-success' : 'text-danger') + ' mb-2">' + (res.message || '{{ __("Status fetched.") }}') + '</p>';
+            html += buildFormattedResponse(res);
+            showStatusCard(success, html);
+        }).catch(function() {
+            document.getElementById('bbps_status_btn').disabled = false;
+            showStatusCard(false, '<p class="text-danger mb-0">{{ __("Request failed while checking status.") }}</p>');
+        });
+    });
+
+    getOperators();
+});
 </script>
-@endpush
 @endsection

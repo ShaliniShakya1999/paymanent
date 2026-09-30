@@ -19,8 +19,6 @@ return [
 
     'default' => env('LOG_CHANNEL', 'stack'),
 
-    'api_request_log_enabled' => env('API_REQUEST_LOG_ENABLED', true),
-
     /*
     |--------------------------------------------------------------------------
     | Log Channels

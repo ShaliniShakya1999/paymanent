@@ -24,7 +24,7 @@
         <div class="mt-14 relative flex flex-col items-center">
             <p class="error-code gilroy-Semibold">{{ __('404') }}</p>
             <p class="error-message text-center gilroy-medium mb-5">{{ __('The page you’re looking for appears to have been moved, deleted or doesn’t exist. We apologize for the inconveniences.') }}</p>
-            <a href="{{ route('home')}}" class="border d-flex align-items-center justify-content-center log-btn rounded ml-60 mt-n4p mt-54p m-auto">
+            <a href="{{ url('/') }}" class="border d-flex align-items-center justify-content-center log-btn rounded ml-60 mt-n4p mt-54p m-auto">
                 <span class="text-lg homepage-link gilroy-medium color-white text-uppercase">{{ __('Go to Home') }}</span> 
             </a>
         </div>

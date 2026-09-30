@@ -50,18 +50,38 @@ Route::group(['middleware' => ['guest:users', 'locale', 'check-user-inactive', '
     Route::post('google2fa/verifyGoogle2faOtp', 'CustomerController@verifyGoogle2faOtp')->name('2fa-verify.google_otp');
 });
 
-// Authenticated User
+// KYC Onboarding (authenticated; no dashboard until approved)
 Route::group(['middleware' => ['guest:users', 'locale', 'twoFa', 'check-user-inactive', 'verification'], 'namespace' => 'Users'], function () {
+    Route::get('kyc', 'KycOnboardingController@category')->name('user.kyc.category');
+    Route::post('kyc/category', 'KycOnboardingController@storeCategory')->name('user.kyc.category.store');
+    Route::get('kyc/individual/step/{step}', 'KycOnboardingController@showStep')->name('user.kyc.individual.step')->where('step', '[1-6]');
+    Route::post('kyc/individual/step/{step}', 'KycOnboardingController@storeStep')->name('user.kyc.individual.step.store')->where('step', '[1-6]');
+    Route::get('kyc/individual/review', 'KycOnboardingController@showReview')->name('user.kyc.individual.review');
+    Route::post('kyc/individual/submit', 'KycOnboardingController@submitReview')->name('user.kyc.individual.submit');
+    Route::get('kyc/proprietorship/step/{step}', 'KycOnboardingController@showStep')->name('user.kyc.proprietorship.step')->where('step', '[1-6]');
+    Route::post('kyc/proprietorship/step/{step}', 'KycOnboardingController@storeStep')->name('user.kyc.proprietorship.step.store')->where('step', '[1-6]');
+    Route::get('kyc/proprietorship/review', 'KycOnboardingController@showReview')->name('user.kyc.proprietorship.review');
+    Route::post('kyc/proprietorship/submit', 'KycOnboardingController@submitReview')->name('user.kyc.proprietorship.submit');
+    Route::get('kyc/partnership/step/{step}', 'KycOnboardingController@showStep')->name('user.kyc.partnership.step')->where('step', '[1-6]');
+    Route::post('kyc/partnership/step/{step}', 'KycOnboardingController@storeStep')->name('user.kyc.partnership.step.store')->where('step', '[1-6]');
+    Route::get('kyc/partnership/review', 'KycOnboardingController@showReview')->name('user.kyc.partnership.review');
+    Route::post('kyc/partnership/submit', 'KycOnboardingController@submitReview')->name('user.kyc.partnership.submit');
+    Route::get('kyc/under-review', 'KycOnboardingController@underReview')->name('user.kyc.under-review');
+    Route::get('kyc/rejected', 'KycOnboardingController@rejected')->name('user.kyc.rejected');
+    // SprintVerify (Aadhaar OTP, PAN details) – during KYC so user can call without kyc.approved
+    Route::prefix('sprintverify')->group(function () {
+        Route::post('aadhaar/send-otp', [\App\Http\Controllers\SprintVerifyController::class, 'aadhaarSendOtp'])->name('sprintverify.aadhaar.send_otp');
+        Route::post('aadhaar/verify-otp', [\App\Http\Controllers\SprintVerifyController::class, 'aadhaarVerifyOtp'])->name('sprintverify.aadhaar.verify_otp');
+        Route::post('pan/details', [\App\Http\Controllers\SprintVerifyController::class, 'panDetailsVerify'])->name('sprintverify.pan.details');
+    });
+});
+
+// Authenticated User (dashboard locked until KYC approved)
+Route::group(['middleware' => ['guest:users', 'locale', 'twoFa', 'check-user-inactive', 'verification', 'kyc.approved'], 'namespace' => 'Users'], function () {
     Route::get('dashboard', 'CustomerController@dashboard')->name('user.dashboard')->withoutMiddleware('verification');
     Route::get('wallet-list', 'CustomerController@getWallets')->name('user.wallets.index');
-    Route::get('recharge', 'RechargeController@index')->name('user.recharge.index');
-    Route::post('recharge/get-operators', 'RechargeController@getOperators')->name('user.recharge.get-operators');
-    Route::post('recharge/do', 'RechargeController@doRecharge')->name('user.recharge.do');
-    Route::get('bbps', 'BillPaymentController@index')->name('user.bbps.dashboard');
-    Route::post('bill-payment/get-operators', 'BillPaymentController@getOperators')->name('user.bill-payment.get-operators');
-    Route::post('bill-payment/fetch-bill', 'BillPaymentController@fetchBill')->name('user.bill-payment.fetch-bill');
-    Route::post('bill-payment/pay', 'BillPaymentController@payBill')->name('user.bill-payment.pay');
-    Route::post('bill-payment/status', 'BillPaymentController@getStatus')->name('user.bill-payment.status');
+    Route::get('products', 'ProductController@index')->name('user.products.index');
+    Route::post('products/request/{product}', 'ProductController@requestActivation')->name('user.products.request');
 
     Route::get('/logout', 'CustomerController@logout')->name('user.logout')->withoutMiddleware(['verification', 'twoFa']);
     Route::get('check-user-status', 'CustomerController@checkUserStatus');
@@ -237,6 +257,58 @@ Route::group(['middleware' => ['guest:users', 'locale', 'twoFa', 'check-user-ina
         Route::post('ticket/reply_store', 'TicketController@reply_store')->name('user.tickets.reply.store');
         Route::post('ticket/change_reply_status', 'TicketController@changeReplyStatus')->name('user.tickets.change_status');
         Route::get('ticket/download/{file}', 'TicketController@download')->name('user.tickets.download');
+    });
+
+    // Bill Payment (BBPS)
+    Route::group(['middleware' => ['check-user-suspended']], function () {
+        Route::get('bill-payment', 'BillPaymentController@index')->name('user.bill_payment.index');
+        Route::post('bill-payment/get-operators', 'BillPaymentController@getOperators')->name('user.bill_payment.get_operators');
+        Route::post('bill-payment/fetch-bill', 'BillPaymentController@fetchBill')->name('user.bill_payment.fetch_bill');
+        Route::post('bill-payment/pay', 'BillPaymentController@payBill')->name('user.bill_payment.pay');
+        Route::post('bill-payment/status', 'BillPaymentController@getStatus')->name('user.bill_payment.status');
+    });
+
+    // Recharge (Mobile / DTH)
+    Route::group(['middleware' => ['check-user-suspended']], function () {
+        Route::get('recharge', 'RechargeController@index')->name('user.recharge.index');
+        Route::post('recharge/get-operators', 'RechargeController@getOperators')->name('user.recharge.get_operators');
+        Route::post('recharge/do', 'RechargeController@doRecharge')->name('user.recharge.do');
+        Route::post('recharge/status', 'RechargeController@getStatusEnquiry')->name('user.recharge.status');
+    });
+
+    // AEPS (Aadhaar Enabled Payment System)
+    Route::group(['middleware' => ['check-user-suspended']], function () {
+        Route::get('aeps', 'AepsController@index')->name('user.aeps.index');
+        Route::post('aeps/get-banks', 'AepsController@getBanks')->name('user.aeps.get_banks');
+        Route::post('aeps/2fa', 'AepsController@twoFactorAuth')->name('user.aeps.2fa');
+        Route::post('aeps/register', 'AepsController@register')->name('user.aeps.register');
+        Route::post('aeps/authenticate', 'AepsController@authenticate')->name('user.aeps.authenticate');
+        Route::post('aeps/status', 'AepsController@getStatus')->name('user.aeps.status');
+    });
+
+    // Bus Booking
+    Route::group(['middleware' => ['check-user-suspended']], function () {
+        Route::get('bus-booking', 'BusBookingController@index')->name('user.bus_booking.index');
+        Route::get('bus-booking/my-bookings', 'BusBookingController@myBookings')->name('user.bus_booking.my_bookings');
+        Route::post('bus-booking/source-cities', 'BusBookingController@getSourceCities')->name('user.bus_booking.source_cities');
+        Route::post('bus-booking/trips', 'BusBookingController@getTrips')->name('user.bus_booking.trips');
+        Route::post('bus-booking/trip-detail', 'BusBookingController@getTripDetail')->name('user.bus_booking.trip_detail');
+        Route::post('bus-booking/boarding-points', 'BusBookingController@getBoardingPoints')->name('user.bus_booking.boarding_points');
+        Route::post('bus-booking/block', 'BusBookingController@blockTicket')->name('user.bus_booking.block');
+        Route::post('bus-booking/book', 'BusBookingController@bookTicket')->name('user.bus_booking.book');
+        Route::post('bus-booking/check-booking', 'BusBookingController@checkBooking')->name('user.bus_booking.check_booking');
+        Route::post('bus-booking/get-booking', 'BusBookingController@getBooking')->name('user.bus_booking.get_booking');
+        Route::post('bus-booking/cancellation-data', 'BusBookingController@getCancellationData')->name('user.bus_booking.cancellation_data');
+        Route::post('bus-booking/cancel', 'BusBookingController@cancelTicket')->name('user.bus_booking.cancel');
+    });
+
+    // SprintVerify (GST, MCA, PAN OCR) – for authenticated users with kyc.approved
+    Route::get('verification/mca', [\App\Http\Controllers\SprintVerifyController::class, 'mcaVerifyPage'])->name('user.verification.mca');
+    Route::get('verification/pan-ocr', [\App\Http\Controllers\SprintVerifyController::class, 'panOcrPage'])->name('user.verification.pan_ocr');
+    Route::prefix('sprintverify')->group(function () {
+        Route::post('gst/verify', [\App\Http\Controllers\SprintVerifyController::class, 'gstVerify'])->name('sprintverify.gst.verify');
+        Route::post('mca/verify', [\App\Http\Controllers\SprintVerifyController::class, 'mcaVerify'])->name('sprintverify.mca.verify');
+        Route::post('pan/ocr', [\App\Http\Controllers\SprintVerifyController::class, 'panOcrVerify'])->name('sprintverify.pan.ocr');
     });
 });
 

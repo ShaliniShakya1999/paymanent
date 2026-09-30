@@ -16,6 +16,7 @@ class DocumentVerification extends Model
         'verification_type',
         'identity_type',
         'identity_number',
+        'document_type',
         'status',
     ];
 

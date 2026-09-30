@@ -13,8 +13,10 @@ use Illuminate\Http\Request;
 use App\Models\{
     DocumentVerification,
     CryptoProvider,
+    Product,
     Transaction,
     UserDetail,
+    UserProduct,
     DeviceLog,
     Country,
     Wallet,
@@ -228,6 +230,23 @@ class CustomerController extends Controller
                                 ->whereHas('virtualcardHolder', function($query) {
                                     return $query->where('user_id', auth()->id());
                                 })->whereStatus('Active')->get();
+
+        $userId = auth()->id();
+        $userActivatedProductIds = UserProduct::where('user_id', $userId)->activated()->pluck('product_id')->toArray();
+        $data['activatedProducts'] = Product::active()
+            ->where(function ($q) use ($userId, $userActivatedProductIds) {
+                $q->where('section', 'activated')
+                    ->orWhereIn('id', $userActivatedProductIds);
+            })
+            ->orderBy('sort_order')->orderBy('title')->get();
+        $availableProducts = Product::active()->available()->orderBy('sort_order')->orderBy('title')->get();
+        $userProductMap = UserProduct::where('user_id', $userId)->whereIn('product_id', $availableProducts->pluck('id'))->get()->keyBy('product_id');
+        $data['availableProductsWithStatus'] = $availableProducts->map(function ($product) use ($userProductMap) {
+            $up = $userProductMap->get($product->id);
+            return (object)['product' => $product, 'user_product' => $up, 'status' => $up ? $up->status : null];
+        })->filter(function ($item) {
+            return $item->status !== 'activated';
+        })->values();
 
         return view('user.dashboard', $data);
     }

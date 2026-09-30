@@ -78,6 +78,7 @@ class Kernel extends HttpKernel
         'check-authorization-token' => \App\Http\Middleware\CheckAuthorizationToken::class,
         'api_version' => \App\Http\Middleware\APIversion::class,
         'demo_check' => \App\Http\Middleware\DemoCheck::class,
+        'kyc.approved' => \App\Http\Middleware\RequireKycApproved::class,
 
     ];
 }

@@ -139,6 +139,9 @@ Route::group(['namespace' => 'Api', 'middleware' => ['check-authorization-token'
     Route::post('perform-express-merchant-payment-qr-code-merchant-currency-user-wallets-review', 'QrCodeController@performExpressMerchantPaymentMerchantCurrencyUserWalletsReviewApi'); //new
     Route::post('perform-express-merchant-payment-qr-code-merchant-amount-review', 'QrCodeController@performExpressMerchantPaymentAmountReviewApi'); //new
     Route::post('perform-express-merchant-payment-qr-code-submit', 'QrCodeController@performExpressMerchantPaymentQrCodeSubmit');
+
+    // SprintVerify – MCA Verification (API)
+    Route::post('verification/mca', [\App\Http\Controllers\SprintVerifyController::class, 'mcaVerify']);
 });
 
 // Route::middleware(['auth:api', 'permission:manage_merchant']);//permission test

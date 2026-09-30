@@ -12,6 +12,7 @@ use App\Models\{RequestPayment,
     DocumentVerification,
     Transaction,
     UserDetail,
+    UserProduct,
     VerifyUser,
     Transfer,
     Country,
@@ -73,6 +74,11 @@ class User extends Authenticatable
     public function wallets()
     {
         return $this->hasMany(Wallet::class);
+    }
+
+    public function userProducts()
+    {
+        return $this->hasMany(UserProduct::class);
     }
 
     public function request_payment()

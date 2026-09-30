@@ -232,6 +232,16 @@
                 </li>
             @endif
 
+            {{-- Service Commission: Admin commission per service (AEPS, Recharge, BBPS, Bus, Verification) --}}
+            @if(auth('admin')->user() && Common::has_permission(auth('admin')->user()->id, 'view_preference'))
+                <li <?= isset($settings_menu) && $settings_menu == 'service_commission' ? ' class="treeview active"' : 'treeview'?>>
+                    <a href="{{ url(config('adminPrefix').'/settings/service-commission') }}">
+                        <i class="fa fa-percent"></i>
+                        <span>{{ __('Service Commission') }}</span>
+                    </a>
+                </li>
+            @endif
+
         </ul>
     </div>
 </div>

@@ -105,6 +105,80 @@
         </div>
     </div>
 
+    <!-- Products Section -->
+    @if (($activatedProducts ?? collect())->isNotEmpty() || ($availableProducts ?? collect())->isNotEmpty())
+    <div class="mt-40">
+        @if(($activatedProducts ?? collect())->isNotEmpty())
+        <p class="mb-3 f-16 leading-20 gilroy-Semibold text-primary text-uppercase">{{ __('Activated Products') }}</p>
+        <div class="row g-3 mb-4">
+            @foreach($activatedProducts as $product)
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                <div class="dash-wallet-box bg-white h-100 p-4">
+                    <div class="d-flex align-items-start">
+                        @if($product->icon_class ?? null)
+                        <div class="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 48px; height: 48px;">
+                            <i class="fa {{ $product->icon_class }} fa-lg"></i>
+                        </div>
+                        @endif
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <p class="mb-1 gilroy-Semibold text-primary f-16">{{ $product->title }}</p>
+                                <span class="badge bg-success px-2 py-1 small">{{ __('Activated') }}</span>
+                            </div>
+                            @if($product->description)
+                            <p class="mb-0 f-12 leading-15 text-gray-100 gilroy-regular">{{ Str::limit($product->description, 60) }}</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @endif
+        @if(($availableProductsWithStatus ?? collect())->isNotEmpty())
+        <p class="mb-3 f-16 leading-20 gilroy-Semibold text-primary text-uppercase">{{ __('Available Products') }}</p>
+        <div class="row g-3">
+            @foreach($availableProductsWithStatus as $item)
+            @php $product = $item->product; $userProduct = $item->user_product; $reqStatus = $item->status; @endphp
+            <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                <div class="dash-wallet-box bg-white h-100 p-4 d-flex flex-column">
+                    <div class="d-flex align-items-start mb-3">
+                        @if($product->icon_class ?? null)
+                        <div class="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 48px; height: 48px;">
+                            <i class="fa {{ $product->icon_class }} fa-lg"></i>
+                        </div>
+                        @endif
+                        <div class="flex-grow-1 min-w-0">
+                            <p class="mb-1 gilroy-Semibold text-primary f-16">{{ $product->title }}</p>
+                            @if($product->description)
+                            <p class="mb-0 f-12 leading-15 text-gray-100 gilroy-regular">{{ Str::limit($product->description, 60) }}</p>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="mt-auto">
+                        @if($reqStatus === 'pending')
+                        <span class="badge bg-warning text-dark px-3 py-2">{{ __('Pending') }}</span>
+                        @elseif($reqStatus === 'rejected')
+                        <span class="badge bg-danger px-3 py-2 mb-2 d-inline-block">{{ __('Rejected') }}</span>
+                        <form action="{{ route('user.products.request', $product->id) }}" method="post" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-primary">{{ __('Request again') }}</button>
+                        </form>
+                        @else
+                        <form action="{{ route('user.products.request', $product->id) }}" method="post">
+                            @csrf
+                            <button type="submit" class="btn btn-primary btn-sm w-100">{{ __('Request Activation') }}</button>
+                        </form>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @endif
+    </div>
+    @endif
+
     <!--Virtualcard Section-->
     @if (!$virtualcards->isEmpty())
         <div class="row mt-20 gy-4">

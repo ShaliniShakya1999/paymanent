@@ -37,9 +37,31 @@
                         </a>
                     </li>
                 @endif
+                @if(Common::has_permission(auth()->guard('admin')->id(), 'view_user'))
+                    <li class="child {{ isset($sub_menu) && $sub_menu == 'kyc_list' ? 'active' : '' }}">
+                        <a href="{{ url(config('adminPrefix').'/kyc') }}">
+                            <i class="fa fa-id-card"></i><span>{{ __('KYC Verifications') }}</span>
+                        </a>
+                    </li>
+                @endif
             </ul>
         </li>
     @endif
+
+    <li class="treeview {{ (isset($menu) && $menu == 'products') ? 'menu-open active' : '' }}">
+        <a href="#">
+            <i class="fa fa-cube"></i><span>{{ __('Products') }}</span>
+            <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+        </a>
+        <ul class="treeview-menu">
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'products_list' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/products') }}"><i class="fa fa-list"></i><span>{{ __('Products list') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'product_activation_requests' ? 'active' : '' }}">
+                <a href="{{ route('admin.product-activation.index') }}"><i class="fa fa-check-circle"></i><span>{{ __('Activation requests') }}</span></a>
+            </li>
+        </ul>
+    </li>
 
     @if(Common::has_permission(auth()->guard('admin')->id(), 'view_deposit') || Common::has_permission(auth()->guard('admin')->id(), 'view_withdrawal') || Common::has_permission(auth()->guard('admin')->id(), 'view_transfer') || Common::has_permission(auth()->guard('admin')->id(), 'view_exchange') || Common::has_permission(auth()->guard('admin')->id(), 'view_request_payment') || Common::has_permission(auth()->guard('admin')->id(), 'view_transaction'))
         <li class="treeview {{ (isset($menu) && $menu == 'transaction') ? 'menu-open active' : '' }}">
@@ -157,6 +179,125 @@
             <a href="{{ url(config('adminPrefix').'/activity_logs') }}"><i class="fa fa-eye"></i><span>{{ __('Activity Logs') }}</span></a>
         </li>
     @endif
+
+    {{-- AEPS (hidden from sidebar)
+    <li class="treeview {{ (isset($menu) && $menu == 'aeps') ? 'menu-open active' : '' }}">
+        <a href="#">
+            <i class="fa fa-credit-card"></i><span>{{ __('AEPS') }}</span>
+            <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+        </a>
+        <ul class="treeview-menu">
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'aeps_agent_list' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/aeps/agent-list') }}"><i class="fa fa-users"></i><span>{{ __('Aeps Agent List') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'aeps_transactions' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/aeps/transactions') }}"><i class="fa fa-list"></i><span>{{ __('AEPS Transactions') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'aeps_logs' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/aeps/logs') }}"><i class="fa fa-file-text-o"></i><span>{{ __('AEPS Logs') }}</span></a>
+            </li>
+        </ul>
+    </li>
+    --}}
+
+    <!-- Recharge -->
+    <li class="treeview {{ (isset($menu) && $menu == 'recharge') ? 'menu-open active' : '' }}">
+        <a href="#">
+            <i class="fa fa-mobile"></i><span>{{ __('Recharge') }}</span>
+            <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+        </a>
+        <ul class="treeview-menu">
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'recharge_operators' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/recharge/operators') }}"><i class="fa fa-th-list"></i><span>{{ __('Operator List') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'recharge_transactions' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/recharge-transactions') }}"><i class="fa fa-history"></i><span>{{ __('Recharge Transactions') }}</span></a>
+            </li>
+        </ul>
+    </li>
+
+    <!-- BBPS Bill Payment -->
+    <li class="treeview {{ (isset($menu) && $menu == 'bbps') ? 'menu-open active' : '' }}">
+        <a href="#">
+            <i class="fa fa-receipt"></i><span>{{ __('BBPS') }}</span>
+            <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+        </a>
+        <ul class="treeview-menu">
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'bbps_operators' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/bbps/operators') }}"><i class="fa fa-th-list"></i><span>{{ __('Operators') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'bbps_payments' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/bill-payment-transactions') }}"><i class="fa fa-money"></i><span>{{ __('Bill Payments') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'bbps_status' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/bbps/status-enquiry') }}"><i class="fa fa-search"></i><span>{{ __('Status Enquiry') }}</span></a>
+            </li>
+        </ul>
+    </li>
+
+    {{-- Bus Booking (hidden from sidebar)
+    <li class="treeview {{ (isset($menu) && $menu == 'bus') ? 'menu-open active' : '' }}">
+        <a href="#">
+            <i class="fa fa-bus"></i><span>{{ __('Bus Booking') }}</span>
+            <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+        </a>
+        <ul class="treeview-menu">
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'bus_source_cities' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/bus/source-cities') }}"><i class="fa fa-map-marker"></i><span>{{ __('Source Cities') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'bus_trips' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/bus/trips') }}"><i class="fa fa-road"></i><span>{{ __('Trips') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'bus_bookings' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/bus/bookings') }}"><i class="fa fa-ticket"></i><span>{{ __('Booked Tickets') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'bus_cancellations' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/bus/cancellations') }}"><i class="fa fa-times-circle"></i><span>{{ __('Cancel Tickets') }}</span></a>
+            </li>
+        </ul>
+    </li>
+    --}}
+
+    <!-- Verification Services -->
+    <li class="treeview {{ (isset($menu) && $menu == 'verification_services') ? 'menu-open active' : '' }}">
+        <a href="#">
+            <i class="fa fa-check-circle"></i><span>{{ __('Verification') }}</span>
+            <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+        </a>
+        <ul class="treeview-menu">
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'verification_pan_ocr' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/verification/pan-ocr') }}"><i class="fa fa-id-card"></i><span>{{ __('PAN OCR') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'verification_pan_details' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/verification/pan-details') }}"><i class="fa fa-id-card"></i><span>{{ __('PAN Details') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'verification_gst' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/verification/gst') }}"><i class="fa fa-building"></i><span>{{ __('GST Verification') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'verification_mca' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/verification/mca') }}"><i class="fa fa-university"></i><span>{{ __('MCA Verification') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'verification_aadhaar' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/verification/aadhaar-otp') }}"><i class="fa fa-user-secret"></i><span>{{ __('Aadhaar OTP') }}</span></a>
+            </li>
+        </ul>
+    </li>
+
+    <!-- Reports -->
+    <li class="treeview {{ (isset($menu) && $menu == 'reports') ? 'menu-open active' : '' }}">
+        <a href="#">
+            <i class="fa fa-bar-chart"></i><span>{{ __('Reports') }}</span>
+            <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+        </a>
+        <ul class="treeview-menu">
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'reports_transactions' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/reports/transactions') }}"><i class="fa fa-exchange"></i><span>{{ __('Transaction Reports') }}</span></a>
+            </li>
+            <li class="child {{ isset($sub_menu) && $sub_menu == 'reports_api_logs' ? 'active' : '' }}">
+                <a href="{{ url(config('adminPrefix').'/reports/api-logs') }}"><i class="fa fa-code"></i><span>{{ __('API Logs') }}</span></a>
+            </li>
+        </ul>
+    </li>
 
     <!--verifications-->
     @if(Common::has_permission(auth()->guard('admin')->id(), 'view_kyc_provider') || Common::has_permission(auth()->guard('admin')->id(), 'view_kyc_verification') || Common::has_permission(auth()->guard('admin')->id(), 'view_kyc_setting'))

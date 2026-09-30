@@ -316,24 +316,28 @@
 @font-face {
   font-family: "Gilroy-Regular";
   font-style: normal;
+  font-display: swap;
   src: url(../fonts/gilroy-font-family/Gilroy-Regular.otf) format("truetype");
 }
 
 @font-face {
   font-family: "Gilroy-Medium";
   font-style: normal;
+  font-display: swap;
   src: url(../fonts/gilroy-font-family/Gilroy-Medium.otf) format("truetype");
 }
 
 @font-face {
   font-family: "Gilroy-Semibold";
   font-style: normal;
+  font-display: swap;
   src: url(../fonts/gilroy-font-family/Gilroy-Semibold.otf) format("truetype");
 }
 
 @font-face {
   font-family: "Gilroy-bold";
   font-style: normal;
+  font-display: swap;
   src: url(../fonts/gilroy-font-family/Gilroy-Bold.otf) format("truetype");
 }
 
@@ -7797,6 +7801,11 @@ html[dir="rtl"] .alert-animate {
 
 select {
   visibility: hidden;
+}
+
+/* Native <select> in user forms (not replaced by Select2) — global rule above hides them otherwise */
+select.form-control.input-form-control {
+  visibility: visible !important;
 }
 
 .custom-daterangepicker {

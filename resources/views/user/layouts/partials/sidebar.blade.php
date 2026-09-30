@@ -23,6 +23,14 @@
                     </a>
                 </li>
 
+                <!-- Products -->
+                <li>
+                    <a href="{{ route('user.products.index') }}" class="mb-1 d-flex align-items-center list-option h-46 mt-7 {{ request()->route()->named('user.products.*') ? 'text-white bg-info' : 'text-info-100' }}">
+                        <span class="ml-12 mr-20">{!! menuSvgIcon('user.products.*') !!}</span>
+                        <span>{{ __('Products') }}</span>
+                    </a>
+                </li>
+
                 <li class="mb-21 d-flex align-items-center res-trans text-warning f-13 ml-20 mt-39 gilroy-Semibold text-uppercase">{{ __('Activities') }}</li>
 
                 <!-- Transactions -->
@@ -69,6 +77,26 @@
                     <a href="{{ route('user.exchange_money.create') }}" class="mb-1 d-flex align-items-center list-option h-46 mt-7 {{ request()->route()->named('user.exchange_money.*') ? 'text-white bg-info' : 'text-info-100' }}">
                         <span class="ml-12 mr-20">{!! menuSvgIcon('user.exchange_money.*') !!}</span>
                         <span>{{ __('Exchange Money') }}</span>
+                    </a>
+                </li>
+                @endif
+
+                <!-- Bill Payment (BBPS) -->
+                @if(config('bill_payment.enabled'))
+                <li>
+                    <a href="{{ route('user.bill_payment.index') }}" class="mb-1 d-flex align-items-center list-option h-46 mt-7 {{ request()->route()->named('user.bill_payment.*') ? 'text-white bg-info' : 'text-info-100' }}">
+                        <span class="ml-12 mr-20">{!! menuSvgIcon('user.bill_payment.*') !!}</span>
+                        <span>{{ __('Bill Payment') }}</span>
+                    </a>
+                </li>
+                @endif
+
+                <!-- Recharge -->
+                @if(config('recharge.enabled'))
+                <li>
+                    <a href="{{ route('user.recharge.index') }}" class="mb-1 d-flex align-items-center list-option h-46 mt-7 {{ request()->route()->named('user.recharge.*') ? 'text-white bg-info' : 'text-info-100' }}">
+                        <span class="ml-12 mr-20">{!! menuSvgIcon('user.recharge.*') !!}</span>
+                        <span>{{ __('Recharge') }}</span>
                     </a>
                 </li>
                 @endif
@@ -157,6 +185,22 @@
                     <a href="{{ route('user.kyc.verifications.initiate') }}" class="mb-1 d-flex align-items-center list-option h-46 mt-7 {{ request()->route()->named('user.setting.*') || request()->route()->named('user.kyc.verifications.*') ? 'text-white bg-info' : 'text-info-100' }}">
                         <span class="ml-12 mr-20">{!! menuSvgIcon('user.setting.*') !!}</span>
                         <span>{{ __('Verifications') }}</span>
+                    </a>
+                </li>
+
+                <!-- MCA Verification -->
+                <li>
+                    <a href="{{ route('user.verification.mca') }}" class="mb-1 d-flex align-items-center list-option h-46 mt-7 {{ request()->route()->named('user.verification.mca') ? 'text-white bg-info' : 'text-info-100' }}">
+                        <span class="ml-12 mr-20">{!! menuSvgIcon('user.verification.mca') !!}</span>
+                        <span>{{ __('MCA Verification') }}</span>
+                    </a>
+                </li>
+
+                <!-- PAN OCR -->
+                <li>
+                    <a href="{{ route('user.verification.pan_ocr') }}" class="mb-1 d-flex align-items-center list-option h-46 mt-7 {{ request()->route()->named('user.verification.pan_ocr') ? 'text-white bg-info' : 'text-info-100' }}">
+                        <span class="ml-12 mr-20">{!! menuSvgIcon('user.verification.pan_ocr') !!}</span>
+                        <span>{{ __('PAN OCR') }}</span>
                     </a>
                 </li>
             </ul>

@@ -3,31 +3,33 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\User;
 
 class BillPaymentTransaction extends Model
 {
     protected $table = 'bill_payment_transactions';
 
     protected $fillable = [
-        'user_id', 'operator_id', 'operator_name', 'canumber', 'amount', 'reference_id',
-        'status', 'mode', 'bill_fetch', 'api_request', 'api_response', 'transaction_id',
+        'user_id',
+        'reference_id',
+        'operator_id',
+        'operator_name',
+        'category',
+        'consumer_number',
+        'amount',
+        'bill_fetch',
+        'mode',
+        'api_response',
+        'status',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
-        'bill_fetch' => 'array',
-        'api_request' => 'array',
         'api_response' => 'array',
     ];
 
-    public function user(): BelongsTo
+    public function user()
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public function transaction(): BelongsTo
-    {
-        return $this->belongsTo(Transaction::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

@@ -1,20 +1,47 @@
-"use strict";
-var RechargeService=(function(){
-    async function getOperators(getOperatorsUrl,csrfToken){
-        try{
-            var response=await fetch(getOperatorsUrl,{method:"POST",headers:{"X-CSRF-TOKEN":csrfToken,"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify({})});
-            var data=await response.json();
-            if(!response.ok) return {success:false,message:data.message||"Failed to load operators."};
-            return {success:true,data:data.data||[],message:data.message};
-        }catch(err){ return {success:false,message:err.message||"Failed to load operators."}; }
+/**
+ * Recharge (Mobile / DTH) – frontend service
+ */
+var RechargeService = (function() {
+    function getOperators(url, csrfToken, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                try {
+                    var res = JSON.parse(xhr.responseText || '{}');
+                    if (callback) callback(res);
+                } catch (e) {
+                    if (callback) callback({ success: false, message: 'Invalid response' });
+                }
+            }
+        };
+        xhr.send(JSON.stringify({}));
     }
-    async function doRecharge(doRechargeUrl,csrfToken,payload){
-        try{
-            var response=await fetch(doRechargeUrl,{method:"POST",headers:{"X-CSRF-TOKEN":csrfToken,"Accept":"application/json","Content-Type":"application/json"},body:JSON.stringify(payload)});
-            var data=await response.json();
-            if(!response.ok) return {success:false,message:data.message||"Recharge request failed."};
-            return {success:!!data.success,status:data.status,message:data.message||(data.success?"Recharge successful!":"Recharge failed."),reference_id:data.reference_id};
-        }catch(err){ return {success:false,message:err.message||"Recharge request failed. Please try again."}; }
+
+    function doRecharge(url, csrfToken, payload, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                try {
+                    var res = JSON.parse(xhr.responseText || '{}');
+                    if (callback) callback(res);
+                } catch (e) {
+                    if (callback) callback({ success: false, message: 'Invalid response' });
+                }
+            }
+        };
+        xhr.send(JSON.stringify(payload || {}));
     }
-    return {getOperators:getOperators,doRecharge:doRecharge};
+
+    return {
+        getOperators: getOperators,
+        doRecharge: doRecharge
+    };
 })();

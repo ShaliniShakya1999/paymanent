@@ -660,7 +660,13 @@ function getLanguageDefault()
 
 function getDefaultCountry()
 {
-    return \App\Models\Country::where(['is_default' => 'yes'])->first()->short_name;
+    $country = \App\Models\Country::where(['is_default' => 'yes'])->first();
+    if ($country) {
+        return $country->short_name;
+    }
+    // Fallback: first country by id (e.g. when no default is set in DB)
+    $fallback = \App\Models\Country::orderBy('id')->first();
+    return $fallback ? $fallback->short_name : '';
 }
 
 function phpDefaultTimeZones()

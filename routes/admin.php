@@ -73,6 +73,25 @@ Route::group([], function ()
     Route::get('users/tickets/{id}', 'UserController@eachUserTicket');
     Route::get('users/disputes/{id}', 'UserController@eachUserDispute');
 
+    // KYC Review
+    Route::get('kyc', 'KycReviewController@index')->name('admin.kyc.index');
+    Route::get('kyc/{id}', 'KycReviewController@show')->name('admin.kyc.show');
+    Route::post('kyc/{id}/approve', 'KycReviewController@approve')->name('admin.kyc.approve');
+    Route::post('kyc/{id}/reject', 'KycReviewController@reject')->name('admin.kyc.reject');
+
+    // Products (user-facing product cards)
+    Route::get('products', 'ProductController@index')->name('admin.products.index');
+    Route::get('products/create', 'ProductController@create')->name('admin.products.create');
+    Route::post('products', 'ProductController@store')->name('admin.products.store');
+    Route::get('products/{id}/edit', 'ProductController@edit')->name('admin.products.edit');
+    Route::put('products/{id}', 'ProductController@update')->name('admin.products.update');
+    Route::delete('products/{id}', 'ProductController@destroy')->name('admin.products.destroy');
+
+    // Product activation requests (admin approve/reject)
+    Route::get('product-activation', 'ProductActivationController@index')->name('admin.product-activation.index');
+    Route::post('product-activation/{id}/approve', 'ProductActivationController@approve')->name('admin.product-activation.approve');
+    Route::post('product-activation/{id}/reject', 'ProductActivationController@reject')->name('admin.product-activation.reject');
+
     // Crypto Send Transactions details
     Route::get('crypto-sent-transactions', 'CryptoSentTransactionController@index')->name('admin.crypto_sent_transaction.index')->middleware('permission:view_crypto_transactions');
     Route::get('crypto-sent-transactions/csv', 'CryptoSentTransactionController@cryptoSentTransactionsCsv')->name('admin.crypto_sent_transaction.csv');
@@ -169,6 +188,38 @@ Route::group([], function ()
     Route::get('exchanges/user_search', 'ExchangeController@exchangesUserSearch');
     Route::get('exchanges/csv', 'ExchangeController@exchangeCsv');
     Route::get('exchanges/pdf', 'ExchangeController@exchangePdf');
+
+    // Bill Payment Transactions (BBPS)
+    Route::get('bill-payment-transactions', 'BillPaymentTransactionController@index')->name('admin.bill_payment_transactions.index');
+
+    // Recharge Transactions
+    Route::get('recharge-transactions', 'RechargeTransactionController@index')->name('admin.recharge_transactions.index');
+
+    // AEPS
+    Route::get('aeps/transactions', 'AepsTransactionController@index')->name('admin.aeps.transactions');
+    Route::get('aeps/logs', 'AepsTransactionController@logs')->name('admin.aeps.logs');
+    Route::get('aeps/agent-list', 'AepsAgentController@index')->name('admin.aeps.agent_list');
+    Route::get('aeps/agent-list/excel', 'AepsAgentController@excel')->name('admin.aeps.agent_list.excel');
+
+    // Recharge (Operator list - info page)
+    Route::get('recharge/operators', 'RechargeTransactionController@operators')->name('admin.recharge.operators');
+
+    // BBPS
+    Route::get('bbps/operators', 'BbpsAdminController@operators')->name('admin.bbps.operators');
+    Route::match(['get', 'post'], 'bbps/status-enquiry', 'BbpsAdminController@statusEnquiry')->name('admin.bbps.status_enquiry');
+
+    // Bus Booking
+    Route::get('bus/source-cities', 'BusBookingAdminController@sourceCities')->name('admin.bus.source_cities');
+    Route::get('bus/trips', 'BusBookingAdminController@trips')->name('admin.bus.trips');
+    Route::get('bus/bookings', 'BusBookingAdminController@bookings')->name('admin.bus.bookings');
+    Route::get('bus/cancellations', 'BusBookingAdminController@cancellations')->name('admin.bus.cancellations');
+
+    // Verification Services (SprintVerify logs by type)
+    Route::get('verification/{type}', 'VerificationServiceController@index')->name('admin.verification.index')->where('type', 'pan-ocr|pan-details|gst|mca|aadhaar-otp');
+
+    // Reports
+    Route::get('reports/transactions', 'ReportController@transactions')->name('admin.reports.transactions');
+    Route::get('reports/api-logs', 'ReportController@apiLogs')->name('admin.reports.api_logs');
 
     // Request Payments
     Route::get('request_payments', 'RequestPaymentController@index')->middleware(['permission:view_request_payment']);
@@ -341,6 +392,9 @@ Route::group([], function ()
     //Preferences
     Route::get('settings/preference', 'SettingController@preference')->middleware(['permission:view_preference']);
     Route::post('save-preference', 'SettingController@savePreference')->middleware(['permission:edit_preference']);
+
+    // Service Commission (admin commission per service: AEPS, Recharge, BBPS, Bus, Verification)
+    Route::match(['get', 'post'], 'settings/service-commission', 'ServiceCommissionController@index')->middleware(['permission:view_preference']);
 
     //Enable Woocommerce
     Route::match(array('GET', 'POST'), 'settings/enable-woocommerce', 'SettingController@enableWoocommerce')->middleware(['permission:view_enable_woocommerce']);

@@ -29,6 +29,27 @@ class UserDetail extends Model
         'address_2',
         'default_currency',
         'timezone',
+        'merchant_category',
+        'kyc_status',
+        'kyc_submitted_at',
+        'kyc_reviewed_at',
+        'kyc_rejection_reason',
+        'kyc_submit_count',
+        'business_registration_type',
+        'kyc_business_registration_number',
+        'kyc_business_registration_other_name',
+        'kyc_signatory_name',
+        'kyc_signatory_phone',
+        'kyc_signatory_email',
+        'kyc_bank_name',
+        'kyc_bank_account_holder_name',
+        'kyc_bank_account_number',
+        'kyc_bank_ifsc_code',
+    ];
+
+    protected $casts = [
+        'kyc_submitted_at' => 'datetime',
+        'kyc_reviewed_at' => 'datetime',
     ];
 
     public function user()
